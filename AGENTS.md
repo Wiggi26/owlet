@@ -6,7 +6,7 @@ This public fork maintains the existing Home Assistant custom integration for Ow
 
 The integration is supplemental to the official Owlet app, base station, and alarm system. Do not describe Home Assistant readings, notifications, or dashboard colours as medical advice, a safety guarantee, or a replacement alarm system. Never add automatic alarm acknowledgement, silencing, or changes to official monitoring behaviour as a maintenance shortcut.
 
-The current authorised work is public-fork HACS packaging, repository metadata, installation documentation, and related validation. This supersedes the original documentation-only audit phase; runtime roadmap work still needs separate authorisation. Do not change application functionality, dependency pins, configuration entries, entity identifiers, or dashboards in this packaging change. Do not deploy, merge, or publish a release. Stop after preparing or updating one focused pull request.
+The current authorised work is an offline custom-integration test harness, synthetic fixtures, compatibility and security CI, and testing documentation. Preserve application behaviour, the runtime dependency pin, configuration entries, entity identifiers, and dashboards. Limit runtime source edits to the mechanical formatting/import cleanup required by the quality gate; record those edits explicitly. Fixes to confirmed runtime defects remain separate roadmap work. Do not deploy, merge, or publish a release. Stop after preparing or updating one focused pull request.
 
 ## Documentation and review preferences
 
@@ -47,9 +47,9 @@ The current authorised work is public-fork HACS packaging, repository metadata, 
 
 ## Tests and validation
 
-Use pytest, Ruff, Home Assistant hassfest, and HACS validation. The inherited repository lacks a runnable custom-component test harness and development dependency declaration; roadmap PR 1 establishes these. Until then, report that limitation instead of claiming tests pass.
+Use pytest, Ruff, Home Assistant hassfest, HACS validation, dependency auditing, and workflow security checks. Test/tool dependencies belong in `pyproject.toml` and `uv.lock`; reproduce the reviewed profiles in `docs/TESTING.md`. Report passing tests and strict expected failures separately. Metadata validation and expected failures do not certify runtime compatibility.
 
-After that harness exists, the standard local checks are:
+After installing the locked environment, the standard local checks are:
 
 ```text
 python -m pytest -q
@@ -62,6 +62,7 @@ git diff --check
 - Enable custom integrations through the pytest Home Assistant custom-component harness and patch the actual `custom_components.owlet`/library boundaries. Do not import a nonexistent Core `homeassistant.components.owlet` implementation or depend on Core's private `tests.common` package.
 - Mock every cloud interaction, including authentication, device discovery, polling, refresh, activation writes, and switch commands. Disable real network sockets in the test suite. Use controlled time rather than real delays.
 - Use entirely synthetic fixtures and identities such as `example.invalid`. Cover setup, reload/unload, options, reauthentication, entry preservation, multiple devices, token rotation, transient errors, invalid data, stale data, and recovery as relevant to each change.
+- Retain synthetic JSON fixtures for complete baseline cloud responses; use Python helpers for isolated edge-case variations. Preserve useful fixture filenames when replacing contents with synthetic data.
 - Do not hide failing tests, weaken assertions, or perform broad formatting churn to obtain a green check. For a confirmed pre-existing defect only, a narrowly scoped strict expected-failure test may establish the initial baseline: it must execute, match the specific known failure, cite the finding, and identify the fix PR that removes it. Never exclude a whole module or imply an expected failure proves compatibility.
 - Run hassfest and HACS validation on pushes and pull requests only; do not add scheduled runs unless explicitly requested. Validate the packaged integration as well as the source tree before any later release. Metadata validation does not replace runtime tests.
 - Documentation-only changes need link/path, scope, sensitive-data, and whitespace checks; do not invent application test results for them.

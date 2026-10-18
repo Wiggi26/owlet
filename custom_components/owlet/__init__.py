@@ -5,16 +5,6 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from pyowletapi.api import OwletAPI
-from pyowletapi.exceptions import (
-    OwletAuthenticationError,
-    OwletConnectionError,
-    OwletDevicesError,
-    OwletEmailError,
-    OwletPasswordError,
-)
-from pyowletapi.sock import Sock
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     CONF_API_TOKEN,
@@ -26,6 +16,15 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from pyowletapi.api import OwletAPI
+from pyowletapi.exceptions import (
+    OwletAuthenticationError,
+    OwletConnectionError,
+    OwletDevicesError,
+    OwletEmailError,
+    OwletPasswordError,
+)
+from pyowletapi.sock import Sock
 
 from .const import CONF_OWLET_EXPIRY, CONF_OWLET_REFRESH, DOMAIN, SUPPORTED_VERSIONS
 from .coordinator import OwletCoordinator

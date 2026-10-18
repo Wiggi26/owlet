@@ -18,6 +18,14 @@ This follow-up was authorised separately from the original documentation-only au
 
 The PyPI availability, hashes, exception imports, and public method contracts for the retained `pyowletapi==2025.4.1` pin were rechecked. Newer inspected versions still remove required exceptions; this is not a dependency upgrade or a full Core compatibility certification.
 
+## Automated test baseline — 18 October 2026
+
+The inherited test-harness/CI finding is addressed by the offline custom-component suite and locked development environment documented in [TESTING.md](TESTING.md). Core/Python pairs `2025.12.4`/`3.13.2` and `2026.10.2`/`3.14.2` each execute **63 cases: 56 passed, 7 strict expected failures**, with **97.53% combined line/branch coverage**. Both GitHub matrix jobs passed in [run 39158262400](https://github.com/Wiggi26/owlet/actions/runs/39158262400); final-head checks are recorded in the PR.
+
+The six inherited capture-like fixture filenames are retained with entirely synthetic JSON contents and documented provenance; Python helpers apply isolated edge-case overrides. Tests load `custom_components.owlet`, use the real pinned library's normalisation, mock all cloud entry points, prohibit network sockets, and fail on unmocked low-level calls. Ruff lint/format, zizmor, current locked-environment pip-audit, HACS and hassfest passed. Runtime edits are limited to mechanical formatting/import cleanup; manifest, dependency pin, translations, identities and original licence are unchanged.
+
+The seven expected failures confirm the existing options constructor, polling auth key, options-update, stale source measurement, instantaneous oxygen sentinel, unknown sleep and disappearing-property defects. They remain **open**, with specific failure signatures and roadmap PR 2/3 ownership. Passing CI does not establish full runtime compatibility. Concurrent refresh, partial exchanges, process-restart persistence, full HTTP/throttling contracts, timestamp/firmware variants, diagnostics redaction, and actual cross-Core storage migrations still need coverage. The historical baseline's dependencies are not included in the current-environment vulnerability scan.
+
 ## Scope, provenance, and limits
 
 The inspected public fork is [Wiggi26/owlet](https://github.com/Wiggi26/owlet), derived from [ryanbdclark/owlet](https://github.com/ryanbdclark/owlet). Both `main` branches resolve to `f8e0067a1e74a523b0bb4b0841b25404a6926ca8`; upstream is archived and the fork is not. The target is a Smart Sock 3 using the Dream app and a European account, with Home Assistant OS on Proxmox. The installed Core, HACS, device firmware, and account behaviour were not inspected.

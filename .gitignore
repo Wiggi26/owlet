@@ -114,6 +114,8 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv*/
+.ruff_cache/
 env/
 venv/
 ENV/

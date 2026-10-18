@@ -3,3 +3,4 @@ https://github.com/ryanbdclark/owlet
 
 Licensed under Apache-2.0; see LICENSE in this directory.
 Modified manifest.json: maintainer, repository URLs, and integration version.
+Python formatting and imports adjusted for CI; application behaviour unchanged.
