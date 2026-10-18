@@ -24,9 +24,11 @@ custom_components/
 
 HACS still downloads a GitHub-generated source archive internally; the removed requirement is the separately built/uploaded **release asset** `owlet.zip`. The selected branch/tag is the source of truth for both the manifest dependency and installed files. HACS filters extraction to `custom_components/owlet`, excluding repository tests, fixtures, docs, and workflow files.
 
-The only existing workflow was `.github/workflows/cron.yml`, containing hassfest and HACS jobs. There was no ZIP-build, upload, release, or deployment job to remove. The validation workflow is retained with reviewed action references, read-only contents permission, PR comments disabled, timeouts, concurrency, and manual invocation. Dependabot tracks the action references. The official action wrappers still invoke upstream-maintained container images; pinning wrapper commits does not freeze those images or certify a runtime support range.
+The only existing workflow was `.github/workflows/cron.yml`, containing hassfest and HACS jobs. There was no ZIP-build, upload, release, or deployment job to remove. The validation workflow is retained with reviewed action references, read-only contents permission, PR comments disabled, timeouts, concurrency, and manual invocation. It uses Ubuntu 24.04 and checkout v6's Node 24 runtime to avoid the runner transition/deprecated Node 20 warnings observed in the first run. Dependabot tracks the action references. The official action wrappers still invoke upstream-maintained container images; pinning wrapper commits does not freeze those images or certify a runtime support range.
 
-The unchanged domain can use the existing [Owlet brand assets](https://github.com/home-assistant/brands/tree/master/custom_integrations/owlet). No new trademark artwork is introduced. `LICENSE` is unchanged at repository root and copied verbatim into the installed directory, alongside `NOTICE`, so HACS source installs retain the licence and upstream attribution.
+The unchanged domain can use the existing [Owlet brand assets](https://github.com/home-assistant/brands/tree/master/custom_integrations/owlet). Official HACS validation accepts those assets, warning that it falls back to the central brands repository because there is no local icon. No new trademark artwork is introduced. `LICENSE` is unchanged at repository root and its text is copied into the installed directory, alongside `NOTICE`, so HACS source installs retain the licence and upstream attribution.
+
+The fork is public, issues are enabled, and its existing description is present. Missing discovery topics were added as repository settings: `hacs`, `home-assistant`, and `owlet`. This setting change is outside the Git diff and is recorded here for review. The first push HACS run failed only the topics check; the subsequent PR run passed after that metadata correction. No checks were ignored.
 
 ## Dependency review
 
@@ -55,7 +57,20 @@ Until a fork release exists, HACS uses `main` and identifies updates by commit. 
 
 ## Validation record
 
-Official validator results and candidate archive-extraction evidence will be added after the PR checks run. No passing result is inferred from upstream's historical workflow.
+| Check | Observed result |
+| --- | --- |
+| [HACS PR validation](https://github.com/Wiggi26/owlet/actions/runs/39137887452/job/117706036027) | Passed, all 9 checks, at candidate `c2bd8f65527e445e40be62454e6fb555af410769`. Brands fallback warning described above; no ignored checks. |
+| [Home Assistant hassfest PR validation](https://github.com/Wiggi26/owlet/actions/runs/39137887452/job/117706035723) | Passed at the same candidate. This is Home Assistant metadata validation, not a Core runtime test. |
+| HACS source extraction | Passed for branch fallback and simulated release-tag scenarios; 15 files, three translations, licence/NOTICE, exact extracted byte equality, and no other repository files installed. |
+| Dependency availability/import contract | Passed under Python 3.12.14 with installed `pyowletapi` 2025.4.1 and aiohttp 3.14.5. All 9 distinct imported library symbols and used async methods exist. No cloud call or HA setup was exercised. |
+| Syntax and documentation | All repository JSON/YAML and Python ASTs parse; local Markdown targets and Git whitespace checks pass. |
+| Runtime/identity source preservation | Diff against baseline `f8e0067` is empty for all integration Python, strings, translations, tests, and original root licence. The integration content tree is `31eaba4f6c21063749b67a3b4554b0373e440af0`. |
+| Existing pytest suite | `pytest --collect-only -q --tb=short -p no:cacheprovider tests` with pytest 9.1.1 fails collection in five modules: the environment has no Home Assistant, and tests import a nonexistent Core integration rather than this custom component. No runtime tests are claimed to pass. |
+| Existing Ruff baseline | Ruff 0.17.1 `check --isolated --no-cache custom_components tests` reports 9 existing lint errors; `format --isolated --no-cache --check custom_components tests` reports 11 files needing formatting, 5 already formatted. No source was reformatted. |
+
+The PR retains final-head check results after documentation/workflow follow-ups; the links above identify the exact initially validated candidate. The installed integration tree is unchanged by those follow-ups.
+
+Extraction procedure: export the staged Git source tree as a temporary repository ZIP with one top-level prefix. Retrieve and inspect HACS [`repositories/base.py` at `cc187cf258940a2a7acb5404773625465d7bf5a8`](https://github.com/hacs/integration/blob/cc187cf258940a2a7acb5404773625465d7bf5a8/custom_components/hacs/repositories/base.py). Its source SHA-256 is `bdb79af1fd36ca88a3eaca09ae7da1f21cb6ff8f762da4d5e230b1f7e96372d3`. Execute only the extracted `download_content` and `download_repository_zip` methods, with local transport/save/executor stubs, `zip_release=False`, `filename=None`, and remote path `custom_components/owlet`. For the `main` scenario the tag URL returns no archive and the branch URL supplies the candidate; for the simulated tag scenario the tag URL supplies the same candidate. Both produce exactly the expected integration files and identical bytes. Compare the installed licence text with the original after line-ending normalisation. No tag is created and no HACS/HA runtime is loaded by this isolated check.
 
 ## Remaining acceptance work
 
