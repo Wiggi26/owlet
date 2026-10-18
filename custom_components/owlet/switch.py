@@ -7,12 +7,11 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Any
 
-from pyowletapi.sock import Sock
-
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from pyowletapi.sock import Sock
 
 from .const import DOMAIN
 from .coordinator import OwletCoordinator
@@ -35,8 +34,8 @@ SWITCHES: tuple[OwletSwitchEntityDescription, ...] = (
     OwletSwitchEntityDescription(
         key="base_station_on",
         translation_key="base_on",
-        turn_on_fn=lambda sock: (lambda state: sock.control_base_station(state)),
-        turn_off_fn=lambda sock: (lambda state: sock.control_base_station(state)),
+        turn_on_fn=lambda sock: lambda state: sock.control_base_station(state),
+        turn_off_fn=lambda sock: lambda state: sock.control_base_station(state),
         available_during_charging=False,
     ),
 )

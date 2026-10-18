@@ -106,11 +106,13 @@ async def async_setup_entry(
 
     sensors = []
     for coordinator in coordinators:
-        sensors.extend([
-            OwletBinarySensor(coordinator, sensor)
-            for sensor in SENSORS
-            if sensor.key in coordinator.sock.properties
-        ])
+        sensors.extend(
+            [
+                OwletBinarySensor(coordinator, sensor)
+                for sensor in SENSORS
+                if sensor.key in coordinator.sock.properties
+            ]
+        )
 
         if OwletAwakeSensor.entity_description.key in coordinator.sock.properties:
             sensors.append(OwletAwakeSensor(coordinator))

@@ -1,21 +1,21 @@
 """Owlet integration coordinator class."""
+
 from __future__ import annotations
 
-from datetime import timedelta
 import logging
-
-from pyowletapi.exceptions import (
-    OwletAuthenticationError,
-    OwletConnectionError,
-    OwletError,
-)
-from pyowletapi.sock import Sock
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_EMAIL
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from pyowletapi.exceptions import (
+    OwletAuthenticationError,
+    OwletConnectionError,
+    OwletError,
+)
+from pyowletapi.sock import Sock
 
 from .const import DOMAIN
 

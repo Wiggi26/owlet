@@ -1,20 +1,87 @@
-# Updated validation actions and permissions; run on pushes and pull requests.
-name: Validate
+# CI validation only; no deployment or publishing.
+name: CI
 
 on:
-  push:
   pull_request:
+    branches: [main]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
-  group: validate-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  quality:
+    name: Ruff and workflow security
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          version: '0.13.1'
+          python-version: '3.14.2'
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked --only-group quality
+      - run: uv run --no-sync ruff check .
+      - run: uv run --no-sync ruff format --check .
+      - run: uv run --no-sync zizmor --offline .github/workflows
+
+  tests:
+    name: Core ${{ matrix.core }} / Python ${{ matrix.python }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - core: '2025.12.4'
+            python: '3.13.2'
+          - core: '2026.10.2'
+            python: '3.14.2'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          version: '0.13.1'
+          python-version: ${{ matrix.python }}
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked --only-group test
+      - name: Verify installed Core version
+        env:
+          EXPECTED_CORE: ${{ matrix.core }}
+        run: uv run --no-sync python -c "import importlib.metadata as m, os; assert m.version('homeassistant') == os.environ['EXPECTED_CORE']"
+      - run: uv run --no-sync pytest -q
+
+  dependencies:
+    name: Dependency vulnerabilities
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          version: '0.13.1'
+          python-version: '3.14.2'
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked
+      - run: uv run --no-sync pip-audit --strict --progress-spinner off
+
   hassfest:
-    name: Hassfest validation
+    name: Hassfest
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
@@ -24,11 +91,10 @@ jobs:
       - uses: home-assistant/actions/hassfest@cd6f3635a740c84d8a14f6121a90068b8ece6bf6
 
   hacs:
-    name: HACS validation
+    name: HACS
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      # HACS retrieves the branch/PR itself; no checkout or write token is needed.
       - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
         with:
           category: integration
