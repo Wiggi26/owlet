@@ -1,35 +1,14 @@
-# Owlet Custom Integration
+# Owlet Custom Integration — Wiggi26 fork
 
-[![GitHub Release][releases-shield]][releases]
-[![GitHub Activity][commits-shield]][commits]
+Modified by Wiggi26 in October 2026 for public-fork installation and updates.
+Derived from [Ryan Clark's Owlet integration](https://github.com/ryanbdclark/owlet), under [Apache-2.0](LICENSE).
 
-[![License][license-shield]][license]
+Add `https://github.com/Wiggi26/owlet` in **HACS → ⋮ → Custom repositories**, with type **Integration**. Open **Owlet (Wiggi26 fork)**, download, and restart Home Assistant. Configure new installations in **Settings → Devices & services → Add integration → Owlet Smart Sock**.
 
-[![hacs][hacsbadge]][hacs]
-[![Project Maintenance][maintenance-shield]][user_profile]
+For an existing installation, replace the integration files in place and keep the existing Home Assistant configuration entry. See the [README](https://github.com/Wiggi26/owlet#upgrading-an-existing-installation) for migration from upstream, backups, and rollback.
 
-A custom component for the Owlet smart sock
+HACS installs `custom_components/owlet` from the selected Git ref; no uploaded ZIP asset is needed. Before the fork has a published release, use the default branch, `main`.
 
-## Installation
+Runtime compatibility is not certified by packaging validation. The inherited Home Assistant 2024.1 minimum was incorrect; current Core options and authentication defects remain open in the [audit](https://github.com/Wiggi26/owlet/blob/main/docs/AUDIT.md). This integration is supplemental to the official Owlet app, base station, and alarms.
 
-1. Click install.
-2. Reboot Home Assistant.
-3. Hard refresh browser cache.
-4. [![Add Integration][add-integration-badge]][add-integration] or in the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Owlet Smart Sock".
-
-<!---->
-
----
-
-[commits-shield]: https://img.shields.io/github/commit-activity/w/ryanbdclark/owlet?style=for-the-badge
-[commits]: https://github.com/ryanbdclark/owlet/commits/main
-[hacs]: https://github.com/hacs/integration
-[hacsbadge]: https://img.shields.io/badge/HACS-Custom-orange.svg?style=for-the-badge
-[license]: LICENSE
-[license-shield]: https://img.shields.io/github/license/ryanbdclark/owlet.svg?style=for-the-badge
-[maintenance-shield]: https://img.shields.io/badge/maintainer-Ryan%20Clark%20%40ryanbdclark-blue.svg?style=for-the-badge
-[releases-shield]: https://img.shields.io/github/release/ryanbdclark/owlet.svg?style=for-the-badge
-[releases]: https://github.com/ryanbdclark/owlet/releases
-[user_profile]: https://github.com/ryanbdclark
-[add-integration]: https://my.home-assistant.io/redirect/config_flow_start?domain=owlet
-[add-integration-badge]: https://my.home-assistant.io/badges/config_flow_start.svg
+[Installation and troubleshooting](https://github.com/Wiggi26/owlet#installation) · [Report an issue](https://github.com/Wiggi26/owlet/issues)

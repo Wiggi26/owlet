@@ -1,0 +1,12 @@
+Owlet Smart Sock custom integration
+
+Original integration by Ryan Clark and contributors:
+https://github.com/ryanbdclark/owlet
+Maintained fork: https://github.com/Wiggi26/owlet
+
+Licensed under the Apache License, Version 2.0; see LICENSE in this directory.
+Original copyright and attribution notices remain with their respective owners.
+
+Modified by Wiggi26 in October 2026: manifest.json now identifies the public
+fork's maintainer, documentation, issue tracker, and integration version.
+The original Python runtime and translations are unchanged.

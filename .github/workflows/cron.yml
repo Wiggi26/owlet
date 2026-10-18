@@ -1,25 +1,38 @@
-name: Validate with hassfest
+# Modified by Wiggi26 in October 2026: fork validation, no release/deployment.
+name: Validate
 
 on:
   push:
   pull_request:
   schedule:
-    - cron:  '0 0 * * *'
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   hassfest:
-    name: "Hassfest validation"
-    runs-on: "ubuntu-latest"
+    name: Hassfest validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-        - uses: "actions/checkout@v3"
-        - uses: "home-assistant/actions/hassfest@master"
-  hacs:
-    name: "HACS Action"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "HACS Action"
-        uses: "hacs/action@main"
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
-            category: "integration"
-        
-        
+          persist-credentials: false
+      - uses: home-assistant/actions/hassfest@cd6f3635a740c84d8a14f6121a90068b8ece6bf6
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # HACS retrieves the branch/PR itself; no checkout or write token is needed.
+      - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
+        with:
+          category: integration
+          comment: false
