@@ -6,7 +6,23 @@ This public fork maintains the existing Home Assistant custom integration for Ow
 
 The integration is supplemental to the official Owlet app, base station, and alarm system. Do not describe Home Assistant readings, notifications, or dashboard colours as medical advice, a safety guarantee, or a replacement alarm system. Never add automatic alarm acknowledgement, silencing, or changes to official monitoring behaviour as a maintenance shortcut.
 
-The current authorised work is an offline custom-integration test harness, synthetic fixtures, compatibility and security CI, and testing documentation. Preserve application behaviour, the runtime dependency pin, configuration entries, entity identifiers, and dashboards. Limit runtime source edits to the mechanical formatting/import cleanup required by the quality gate; record those edits explicitly. Fixes to confirmed runtime defects remain separate roadmap work. Do not deploy, merge, or publish a release. Stop after preparing or updating one focused pull request.
+The current authorised work is audit triage, a remediation issue backlog in the public fork, and planning documentation. Do not modify application code, dependencies, configuration, tests, workflows or dashboards in this planning task. Fix implementation needs separate authorisation. Do not deploy, merge, or publish a release. Stop after presenting the documentation and remediation plan for review.
+
+## Authoritative GitHub repository
+
+- The authoritative repository is `Wiggi26/owlet` (`https://github.com/Wiggi26/owlet`). All GitHub issues, branches, pull requests, comments and other writes must target this fork exclusively.
+- `ryanbdclark/owlet` (`https://github.com/ryanbdclark/owlet`) is reference-only for historical issues, discussions and source. Never create or modify upstream issues, branches, PRs, comments, tags or releases. Link relevant upstream evidence from the corresponding fork issue.
+- Before every GitHub write, verify the resolved repository owner is `Wiggi26` and name is `owlet`, and confirm access. Do not rely on the current directory, an inferred default repository or a remote named `origin` alone. Verify the head/base repository when opening PRs and the push URL before pushing branches.
+- Check existing fork issues in all states, with pagination, before creating an issue. Search finding IDs and the problem itself; update an appropriate existing issue rather than duplicating it.
+- Every GitHub CLI operation must explicitly select the fork, for example `gh issue list --repo Wiggi26/owlet`, `gh issue create --repo Wiggi26/owlet` or `gh pr create --repo Wiggi26/owlet`. Structured GitHub tools must explicitly use `Wiggi26/owlet` as the repository argument.
+- If fork access or write permission is unavailable, stop GitHub writes, report the problem and prepare ready-to-publish descriptions locally. Never fall back to writing upstream.
+
+## Audit and remediation traceability
+
+- Before planning or implementation, read this file, `docs/AUDIT.md`, `docs/ROADMAP.md` and `docs/TESTING.md`; consult the current audit register and linked fork issues rather than historical status snapshots.
+- Keep finding IDs stable. Each fix PR must reference its finding IDs and fork issues, explain compatibility impact, and include applicable automated/manual verification and remaining uncertainty.
+- After a fix merges, update the audit/roadmap and issue with the merged PR/commit, exact tested versions, verification links and outstanding risks. Mark Resolved only when the merged evidence satisfies acceptance criteria; green metadata checks, strict expected failures or an issue closure alone do not resolve a runtime defect.
+- Distinguish confirmed defects, reported defects, security concerns, validation gaps, technical debt and enhancements. Record dependencies and the reason for Blocked/Accepted Risk decisions; do not silently accept unresolved High risks or interpret a report as a reproduced defect.
 
 ## Documentation and review preferences
 

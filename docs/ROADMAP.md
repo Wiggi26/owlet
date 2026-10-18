@@ -1,104 +1,101 @@
-# Owlet maintenance roadmap
+# Owlet remediation roadmap
 
-Prepared 18 October 2026 from [AUDIT.md](AUDIT.md). Runtime work remains a proposed plan for review. Public-fork packaging and documentation were separately authorised ahead of this sequence; see [PACKAGING.md](PACKAGING.md). No deployment, release publication, merge, or household dashboard change is authorised.
+Reviewed **18 October 2026**, against fork `main` at `197bf4e`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
 
-## Priorities and constraints
+## Baseline and decision rules
 
-Maintain `owlet` and its existing entity/configuration identities. Keep the unofficial cloud library and coordinator architecture. The target is Smart Sock 3 with the Dream app and European accounts; retain V2 and multiple-device compatibility. Home Assistant remains supplemental to the official Owlet alarm system.
+[HACS packaging PR #1](https://github.com/Wiggi26/owlet/pull/1) and [CI PR #2](https://github.com/Wiggi26/owlet/pull/2) are merged. Source-directory installation, fork metadata, synthetic JSON fixtures and the offline CI harness are established. Do not recreate ZIP/release deployment infrastructure. Current source, licence/attribution and `owlet` config/entity identities must be preserved during later fixes.
 
-P1 work establishes a reproducible test baseline, fixes current Core/options and authentication handling, and prevents invalid/stale readings from being presented as current. P2 work improves recovery, diagnostics, distribution, documentation, and dashboard fit. Camera support, derived predictions, recovery-mode control, alarm acknowledgement, and a wholesale rewrite are deferred.
+Both reviewed profiles (Core/Python 2025.12.4/3.13.2 and 2026.10.2/3.14.2) execute 56 passes and seven strict expected failures, with 97.53% combined coverage. [TESTING.md](TESTING.md) explains the exact locked environments and limits. These probes do not yet establish a supported version range. Keep `pyowletapi==2025.4.1` until an explicitly reviewed contract/dependency change is justified.
 
-At the original audit, the fork matched upstream `main` at `f8e0067`. Keep `pyowletapi==2025.4.1` through the first three runtime PRs unless a separately reviewed requirement makes that impossible. Do not use the upstream `2025.4.3` tag as an interchangeable baseline: its pin differs from `main` and the uploaded ZIP.
+The original roadmap's “PR 1/2/3” were conceptual stages, not GitHub PR numbers. The merged infrastructure is GitHub PR #2; the seven remaining expected failures map to stable findings below. New implementation PRs must cite those IDs rather than treating the old stage numbers as issue ownership.
 
-## Proposed first three implementation PRs
+## Critical blockers
 
-These are the first three PRs **after approval of the documentation**, not three PRs to create now. Use separate worktrees and branches; merge in order. Each must pass its declared checks. The infrastructure baseline must report specific known regressions openly; PRs 2 and 3 replace their expected-failure cases with passing behaviour tests. If a PR needs unrelated runtime changes to become green, split or revise its scope rather than weakening checks.
+No Critical finding is established. No active credential compromise, destructive Core-wide failure or newly added alarm control is evidenced by this review. This does not certify the integration as safe or medically reliable. It remains supplemental to the official Owlet app/base/alarm system.
 
-### PR 1 — Establish an offline custom-integration test and CI baseline
+If new evidence establishes severe compromise or destructive behaviour, re-triage immediately using redacted evidence. Credential rotation/history rewriting remains a separate authorised action. Do not manufacture urgency from an unverified hypothesis.
 
-Baseline implemented: see [TESTING.md](TESTING.md) and the [audit follow-up](AUDIT.md#automated-test-baseline--18-october-2026). Both reviewed Core/Python profiles run 63 cases (56 pass, 7 strict expected failures), with 97.53% coverage. Infrastructure and fixture-provenance findings are addressed; the recorded runtime defects remain assigned to PRs 2 and 3 below. The small runtime-source diff is mechanical formatting/import cleanup required by the full-tree Ruff gate.
+## High-priority installation, compatibility and authentication fixes
 
-Suggested branch: `test/offline-ci-baseline`. Priority: P1. Runtime application changes: none.
+| Order | Proposed small PR | Findings / fork issue | Prerequisites / completion evidence |
+| --- | --- | --- | --- |
+| 1 | Repair options construction and absent polling defaults | OWL-001 / OWL-002; [#3](https://github.com/Wiggi26/owlet/issues/3) | Existing harness. Options and legacy-entry setup pass on both profiles; five-second default/minimum retained. |
+| 2 | Apply saved polling options and clean up listeners | OWL-003; [#3](https://github.com/Wiggi26/owlet/issues/3) | Step 1. Two-sock reload/update preserves data, options and registry identities. |
+| 3 | Restore polling-triggered reauthentication | OWL-004; [#4](https://github.com/Wiggi26/owlet/issues/4) | Existing harness; may proceed beside options. Replace the exact auth xfail with entry-linked recovery. |
+| 4 | Validate supported discovery and classify flow errors | OWL-005 / OWL-006; [#5](https://github.com/Wiggi26/owlet/issues/5) | Step 3 for reauth. Initial/reauth/options error and translation-key contracts pass; no unusable empty-account entries. |
+| 5 | Remove identity/unsafe exception details from failures | OWL-007; [#6](https://github.com/Wiggi26/owlet/issues/6) | Can proceed independently near the start. Synthetic nested log-redaction tests preserve useful categories. |
+| 6 | Lock down retained-library HTTP/normalisation contracts | OWL-017; [#7](https://github.com/Wiggi26/owlet/issues/7) | Test-only preflight before cloud changes; reviewed imports, exceptions, activation/request counts and command results. |
+| 7a | Add concurrent/partial token and real storage-reload regressions | OWL-008; [#8](https://github.com/Wiggi26/owlet/issues/8) | Auth recovery and library contracts. Use controlled task events and synthetic persisted entries. |
+| 7b | Repair only demonstrated token concurrency/persistence defects | OWL-008; [#8](https://github.com/Wiggi26/owlet/issues/8) | Evidence from 7a. Preserve complete token sets, region, options and identities; no second cloud client. |
 
-Problem: the existing 27 tests target Home Assistant Core's source tree, lack a declared test environment, and are not run by Actions. Their mocks and expected device/entity names predate runtime changes. Fixtures contain capture-like data without synthetic provenance.
+Options/API compatibility comes early because it directly blocks configuration, not because all Home Assistant API modernisation is urgent. The optional typed-runtime refactor is Low priority and comes later.
 
-Scope:
+## Reliability and data accuracy fixes
 
-- Add pinned development dependencies and pytest configuration using `pytest-homeassistant-custom-component`, with custom integrations enabled and real sockets disabled. Match its Home Assistant version constraints rather than blindly combining incompatible pins.
-- Convert test imports, patch targets, and fixture loading to this repository's `custom_components.owlet` implementation. Generate entirely synthetic fixtures; update stale response envelopes and expectations to the audited baseline. Do not change existing unique IDs to satisfy tests.
-- Preserve useful existing setup, flow, sensor, binary-sensor, and error tests. Add a minimal switch/multi-sock baseline and identity assertions. Where an existing assertion exposes a confirmed runtime defect, retain its intended behaviour as a narrow strict expected-failure regression with the specific failure signature and audit reference; remove that marker in PR 2 or 3. Do not skip whole tests/modules or relax assertions to claim the defect is fixed. Record the exact Core/Python/library versions.
-- Add Ruff configuration, `ruff check`, and `ruff format --check`; keep unrelated formatting out of this PR. If existing application formatting prevents a full-tree gate, propose a separate mechanical-only follow-up or an explicit temporary baseline with a removal issue. Do not silently exclude runtime files.
-- Add pytest and Ruff Actions jobs; retain hassfest and HACS validation. Pin reviewed action revisions, set `permissions: contents: read`, job timeouts, and concurrency cancellation. Use `pull_request`, not a privileged untrusted-code execution path. No Owlet/HA secrets or deployment jobs.
-- Declare how to reproduce checks locally and on Linux Actions. Test an explicit currently workable Core/Python pair first; identify the minimum/current compatibility failures as separate regressions for PR 2. Full application support on current Core is not a claim of this infrastructure PR.
+| Order | Proposed small PR | Findings / fork issue | Prerequisites / completion evidence |
+| --- | --- | --- | --- |
+| 8 | Preserve unknown/new sleep codes consistently | OWL-013; [#10](https://github.com/Wiggi26/owlet/issues/10) | Independent small correction. Remove the specific sleep xfail and cover unfamiliar codes in both platforms. |
+| 9 | Reject protocol-invalid numeric values | OWL-012; [#10](https://github.com/Wiggi26/owlet/issues/10) | Separate from sleep mapping. Sentinel/null/string/non-finite/boundary and recovery tests; no medical thresholds, smoothing or clamping. |
+| 10 | Make missing-property getters robust | OWL-014; [#9](https://github.com/Wiggi26/owlet/issues/9) | Independent of freshness policy. Missing measurement/charging/control/alert fields cannot break unrelated entities. |
+| 11a | Establish source timestamp/flag contracts and preserve UTC | OWL-011 / OWL-015; [#11](https://github.com/Wiggi26/owlet/issues/11) | Library contracts and step 10. Evidence for old/missing/malformed/future timestamps, clock skew and charging flags. |
+| 11b | Apply the reviewed freshness/availability policy | OWL-011 / OWL-015; [#11](https://github.com/Wiggi26/owlet/issues/11) | 11a's evidence. Remove stale-data xfail; expose uncertainty when freshness cannot be established. Equal values alone never imply staleness. |
+| 12 | Classify HTTP failures and bound account backoff/request work | OWL-009 / OWL-010; [#12](https://github.com/Wiggi26/owlet/issues/12) | Library and token contracts. Explicit 401/403/429/5xx, Retry-After, timeout/cancellation, request-count and recovery evidence. |
+| 13 | Cover failed setup/cancellation/unload before lifecycle fixes | OWL-041; [#13](https://github.com/Wiggi26/owlet/issues/13) | Options listener work. Demonstrate cleanup on two-sock partial failure; never close HA's shared session. |
+| 14 | Establish supported Core/Python and advisory policy | OWL-024 / OWL-030; [#20](https://github.com/Wiggi26/owlet/issues/20) | Configuration/auth fixes; review all remaining High limitations before making support claims. Each advertised pair matches CI and has an explicit advisory result/scope. |
 
-Acceptance:
+Freshness has high impact but needs protocol evidence; it must not be “fixed” with an invented age cutoff. Low-risk sleep, numeric and getter fixes can progress while that evidence is established. HTTP resilience follows contract/concurrency tests to avoid changing several uncertain behaviours together.
 
-- A clean Linux CI run collects and runs the ported tests against this custom integration, with network sockets prohibited. A forgotten mock fails instead of contacting Owlet, including activation POSTs and command calls.
-- Every fixture is synthetic, with no household names, real readings, device/network IDs, credentials, or captured timestamps. No debug payload appears in CI logs/artifacts.
-- Ruff, hassfest, and HACS outcomes are explicit and reviewable. Pytest reports executed/passed/strict-expected-failure totals separately; only the documented defects assigned to PR 2 or 3 qualify for expected failure. Unexpected failures block the PR, and unexpected passes require removing the marker. Lint/metadata failures are resolved within scope or the PR is split.
-- Existing entry data/options, serial-based entity unique IDs, and multi-device creation are covered. No application behaviour, dependency pin, manifest version, release, or deployment changes occur.
+### Existing expected failures
 
-### PR 2 — Repair current Core options and reauthentication handling
-
-Suggested branch: `fix/options-and-reauth`. Priority: P1. Depends on PR 1.
-
-Problem: current Core rejects the options constructor's `config_entry` assignment. Polling authentication errors raise `KeyError('email')` instead of reaching reauth. Connection/no-device/reauth failures lack consistent user feedback, and changed intervals do not reach running coordinators.
-
-Scope:
-
-- Use the supported options-flow property without manually assigning it. Apply changed polling intervals through one supported reload/update mechanism; provide a default for older entries missing the option and keep the five-second minimum.
-- Correct the polling auth exception path using non-identifying error text. Preserve entry ID, `username`, `region`, tokens, all existing data/options, and entity registry identities during reauth/reload.
-- Use supported reauth helpers, classify connection/credential/no-device failures, and supply every emitted translation key. Validate supported-device discovery before completing initial setup, while keeping transient service failures retryable.
-- Retain exact token dictionary persistence and add tests for refresh followed by restart and a failed/partial exchange. Do not persist passwords. Identify any account-wide refresh-lock/library change as a separate follow-up if the contract cannot be fixed in this focused PR.
-- Replace the unverified `2024.1` compatibility claim with an explicit tested support policy. Proposed modern baseline for review: Core 2025.12 plus Core 2026.10.2/current stable at implementation time, using the matching Python versions. Check whether a less disruptive floor is practical; do not advertise a range CI does not exercise.
-
-Acceptance:
-
-- Options open and save on the chosen current Core; changed polling takes effect without deleting/re-adding the integration. Existing saved intervals are retained and absent values receive the documented default.
-- Synthetic expired/revoked tokens trigger reauth; network/server failures produce retryable failures; incorrect credentials and an empty/unsupported account produce translated guidance.
-- Reauth and reload preserve entry IDs, entity IDs/unique IDs, devices, options, and region. Restart after a mocked refresh uses the new token set without a password.
-- The declared minimum and current stable Core/Python CI jobs pass, including import/setup/options tests. `pyowletapi` remains pinned to 2025.4.1; no region-identity migration, release, deployment, or dashboard change is included.
-
-### PR 3 — Validate physiological values and expose honest freshness states
-
-Suggested branch: `fix/measurement-validity`. Priority: P1. Depends on PRs 1 and 2.
-
-Problem: successful polls accept old source data, instantaneous oxygen lacks sentinel validation, unknown sleep codes become awake, and disappearing properties can break entity getters. Upstream frozen-reading reports establish a reason to investigate; they do not establish the current device's root cause.
-
-Scope:
-
-- Create a small validated measurement snapshot at the existing library/coordinator boundary, retaining raw UTC source time where available. Keep transport success distinct from device measurement validity and preserve all entity unique IDs.
-- Define and document a source-age policy supported by the API fields and synthetic replay scenarios. Handle absent/malformed/future timestamps explicitly. If reliable freshness cannot be determined for a device/firmware, expose that uncertainty rather than inventing a fresh timestamp or inferring staleness merely from identical values.
-- Reject oxygen sentinels/out-of-range values and non-finite/malformed numeric measurements. Define non-medical validity rules for other fields using protocol evidence, not alarm thresholds. Preserve the existing 10-minute average guard and charging semantics.
-- Make unknown/new sleep codes unknown; protect getters against missing properties. Distinguish stale/invalid values from transient cloud failure and document recovery semantics for alerts as well as measurements.
-- Add only the additive freshness/status metadata needed for a later dashboard. Do not bundle a diagnostic export, a card implementation, new cloud polling, or an alarm feature into this PR.
-
-Acceptance:
-
-- Frozen source timestamps, repeated valid identical readings, invalid/missing/future timestamps, old replayed values, charging, missing fields, disconnects, source recovery, oxygen sentinels, NaN/infinity, and new sleep codes are covered with synthetic controlled-time tests.
-- Unknown sleep never becomes awake by default. Invalid/stale physiological values do not appear as valid zeroes, plausible clamped values, or current “healthy” readings. Valid live and historical measurements remain distinguishable.
-- Tests verify no entity/config identity changes, multi-sock independence, and bounded polling. No live account is used and no clinical threshold or reliability guarantee is introduced.
-- The PR states limitations, especially when cloud timestamps might advance without new device measurements. If a trustworthy source-age rule cannot be established, land the validated parts with explicit unknown freshness and track the unresolved protocol question separately.
-
-## Subsequent focused work
-
-| Order / priority | Work | Completion evidence |
+| Test | Finding | Issue |
 | --- | --- | --- |
-| 4 / P1 before release | Reproducible fork packaging and HACS instructions | Source-directory HACS packaging and fork docs addressed separately; see PACKAGING.md. Validate the selected ref's extracted integration, translations, licence/attribution, tag/manifest/dependency equality, and absence of private files. No uploaded release ZIP or ZIP-build workflow is required. Tested runtime support and user-run HACS acceptance remain release gates. No publication in this work. |
-| 5 / P2 | Cloud resilience and token concurrency | Mock timeouts, cancellation, 401/403/429/5xx, `Retry-After`, disconnect/reconnect, concurrent socks, and token rotation. Add account-wide refresh coordination/backoff at the correct layer without lowering the poll interval. Measure request amplification and test unload cleanup. |
-| 6 / P2 | Dependency-contract review | Compare 2025.4.1 with 2025.4.10 or a maintained successor; test removed exception classes, device filtering, normalisation, refresh, commands, and Python/aiohttp compatibility. Choose a tested exact pin; do not use a Git fork just to obtain an alarm button. |
-| 7 / P2 | Privacy-safe diagnostics and metadata | Allowlisted diagnostic summary with nested redaction tests and synthetic output. Correct invented hardware versions/invalid MAC connections while preserving registry identifiers. Explain recorder/statistics/backup sensitivity. |
-| 8 / P2 | Optional Baby Monitor card example | Reuse Sections and existing status/summary templates; keep camera/care hierarchy; HR/oxygen/average units, charging/battery, trustworthy source age, unknown/stale text, and optional capabilities. Synthetic-only examples; mobile/tablet and theme/accessibility review; no household dashboard export or new required framework. |
-| 9 / P2 | Account-region identity and translations | Review upstream PR #30 as a separate migration, with duplicate-account/region tests, preserved entity identities, and no account identifiers in logs. Review French encoding and the English content of the Ukrainian locale; keep existing translation keys stable. |
+| `test_options_flow` | OWL-001 | [#3](https://github.com/Wiggi26/owlet/issues/3) |
+| `test_saved_interval_applies` | OWL-003 | [#3](https://github.com/Wiggi26/owlet/issues/3) |
+| `test_coordinator_auth_error` | OWL-004 | [#4](https://github.com/Wiggi26/owlet/issues/4) |
+| `test_old_source_measurement_unavailable` | OWL-011 | [#11](https://github.com/Wiggi26/owlet/issues/11) |
+| `test_oxygen_sentinel_unavailable` | OWL-012 | [#10](https://github.com/Wiggi26/owlet/issues/10) |
+| `test_unknown_sleep_not_awake` | OWL-013 | [#10](https://github.com/Wiggi26/owlet/issues/10) |
+| `test_missing_measurement_is_unknown` | OWL-014 | [#9](https://github.com/Wiggi26/owlet/issues/9) |
 
-If a confirmed credential exposure emerges, address it immediately with redacted evidence and a separate authorised remediation path. The audit has not established an active credential leak, and this contingency is not a reason to rewrite public history now.
+Each fix must make the intended test pass, remove only its matching strict marker, add relevant edge/recovery tests and update merged evidence. Do not skip tests or reinterpret an expected failure as compatibility.
 
-## Validation and release gates
+## Medium-priority improvements
 
-For approved implementation work, run pytest with all network blocked, Ruff lint/format checks, hassfest, HACS validation, and `git diff --check`. Runtime matrix entries must specify compatible Python/Core/test-plugin constraints. Test the selected source ref's HACS-extracted contents and import/setup path; passing metadata validation alone is insufficient.
+Each row is a separate PR or an investigation followed by a narrowly justified fix. They are not a single combined “cleanup” PR.
 
-Before any release decision, provide the exact candidate commit/version, green check links, package inspection result, tested Core/Python versions, identity/migration evidence, known cloud/firmware limitations, installation/restart instructions, and a rollback plan. Rollback must account for any config migration; downgrading code is not automatically a safe data migration.
+| Work | Finding / issue | Dependency / acceptance focus |
+| --- | --- | --- |
+| Device arrival, optional capabilities and discovery metadata | OWL-016; [#14](https://github.com/Wiggi26/owlet/issues/14) | Missing-field and cloud lifecycle work; bounded discovery/reload policy, no duplicate registry entities. |
+| Existing base-station switch capability/result handling | OWL-018; [#15](https://github.com/Wiggi26/owlet/issues/15) | Missing-field/library contracts; failed commands are visible, identity retained. Mocked commands only; physical/alarm behaviour needs separate approval. |
+| Truthful hardware/MAC metadata | OWL-019; [#16](https://github.com/Wiggi26/owlet/issues/16) | Can proceed independently with registry tests. Omit invented facts/invalid connections; avoid casual renaming. |
+| Allowlisted diagnostics, repair and retention guidance | OWL-020 / OWL-021; [#17](https://github.com/Wiggi26/owlet/issues/17) | Privacy and freshness semantics first; exact synthetic output allowlist, no readings/config entries in exports, no changes to recorder settings. |
+| Charging battery spike investigation | OWL-022; [#18](https://github.com/Wiggi26/owlet/issues/18) | No hard prerequisite. Replay synthetic transitions and establish cause before filtering; report remains unverified. |
+| Region-aware account identity | OWL-023; [#19](https://github.com/Wiggi26/owlet/issues/19) | Flow/token stability first; separately reviewed old-entry migration/rollback with stable entity bindings. Do not copy upstream PR #30 wholesale. |
 
-The owner may later verify the approved candidate through HACS on their own HA OS installation and compare synthetic/test behaviour or ordinary operation with the official app. That is a separate user-run acceptance step, not a request for credentials, direct HA access, SSH, or deployment infrastructure. Do not publish those household observations as baby readings.
+## Low-priority enhancements
 
-Build/validation artifacts may be prepared for review during approved work. Publishing a GitHub release, installing to Home Assistant, merging PRs, and changing monitoring/control behaviour are separate actions. The authorised packaging follow-up stops at a pull request; the proposed runtime PRs still await separate authorisation.
+| Work | Finding / issue | Gate |
+| --- | --- | --- |
+| Ukrainian localisation and remaining copy | OWL-027; [#23](https://github.com/Wiggi26/owlet/issues/23) | Functional flow keys first; fluent review and no speculative French encoding rewrite or entity-key churn. |
+| Typed runtime ownership | OWL-028; [#24](https://github.com/Wiggi26/owlet/issues/24) | Token/lifecycle stability; document the benefit, reuse freshness work and keep the coordinator/library architecture. |
+| Optional dashboard example | OWL-029; [#25](https://github.com/Wiggi26/owlet/issues/25) | Correct values/freshness/availability, reviewed switch semantics and diagnostics first. Synthetic-only mobile/tablet/theme/accessibility review; no mandatory new card/client. |
+
+Central brand fallback and deferred camera/prediction/recovery/alarm-control features retain existing scope decisions (OWL-038 / OWL-039). They are not release-blocking defects and do not justify new implementation work.
+
+## Release readiness requirements
+
+Release readiness is an acceptance gate, not permission to publish.
+
+1. Close or explicitly review every applicable High item using merged PRs and exact verification evidence. No strict expected failure may be called a resolved defect; owner acceptance of a remaining risk must be explicit.
+2. Publish a factual support policy only for tested Core/Python profiles; reconcile the historical advisory gap. Run pytest with real sockets blocked, Ruff, hassfest, HACS, dependency/security checks and whitespace validation. Keep all six CI jobs mandatory for changes and avoid scheduled runs.
+3. Complete [Dream/European/target acceptance (#21)](https://github.com/Wiggi26/owlet/issues/21) (OWL-025) after correctness/auth/reliability prerequisites. This is a separately approved, owner-run check on the target environment, not direct HA/Proxmox access. Record only versions, anonymous counts and pass/fail categories; do not disrupt official monitoring or publish household data.
+4. Complete [candidate source/version/install checks (#22)](https://github.com/Wiggi26/owlet/issues/22) (OWL-026). Use `YYYY.M.P`, an exact future tag matching manifest and tested commit, source-directory HACS extraction with translations/LICENSE/NOTICE, dependency equality and no unintended package files. Do not move or repair upstream tags/assets.
+5. Verify existing-install upgrade/restart and a documented rollback, retaining config entry IDs/data/options/region, entity IDs/unique IDs, registry associations, disabled states and user customisations. Test old-entry storage migrations where applicable, not just a same-process unload.
+6. Present the candidate commit, check links, package inspection, supported versions, unresolved cloud/firmware limitations and rollback evidence for a separate owner decision. Do not publish a release, deploy, merge or change official monitoring as part of this plan.
+
+## Maintaining the plan
+
+All implementation work needs a new explicit instruction. Use a separate worktree and short `codex/` branch per focused change. Before GitHub writes, verify the fork's owner/name and access; check existing issues, use explicit repository arguments and stop if fork access fails. Link upstream reports only as historical evidence.
+
+Consult the audit/roadmap before each change. Reference stable IDs and fork issues in PRs, then update the register, issue and this sequence after merge with exact verification and remaining risk. A new finding must distinguish source-confirmed behaviour, synthetic reproduction, upstream report and unverified hypothesis. Keep detailed acceptance in the existing issues instead of duplicating them across new tickets.
