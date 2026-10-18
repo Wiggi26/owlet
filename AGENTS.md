@@ -6,7 +6,14 @@ This public fork maintains the existing Home Assistant custom integration for Ow
 
 The integration is supplemental to the official Owlet app, base station, and alarm system. Do not describe Home Assistant readings, notifications, or dashboard colours as medical advice, a safety guarantee, or a replacement alarm system. Never add automatic alarm acknowledgement, silencing, or changes to official monitoring behaviour as a maintenance shortcut.
 
-The current authorised work is public-fork HACS packaging, repository metadata, installation documentation, and related validation. This supersedes the original documentation-only audit phase; runtime roadmap work still needs separate authorisation. Do not change application functionality, dependency pins, configuration entries, entity identifiers, or dashboards in this packaging change. Do not deploy, merge, or publish a release. Stop after preparing one focused pull request.
+The current authorised work is public-fork HACS packaging, repository metadata, installation documentation, and related validation. This supersedes the original documentation-only audit phase; runtime roadmap work still needs separate authorisation. Do not change application functionality, dependency pins, configuration entries, entity identifiers, or dashboards in this packaging change. Do not deploy, merge, or publish a release. Stop after preparing or updating one focused pull request.
+
+## Documentation and review preferences
+
+- Keep PR descriptions concise: describe the change, relevant checks, and unresolved issues. Keep detailed verification evidence in the audit or packaging document instead of repeating it.
+- Limit README edits to factual behaviour, usage, installation, upgrades, and troubleshooting relevant to the change. Keep audit narratives, implementation plans, and release-process details in `docs/`.
+- Preserve existing integration names; do not add fork or owner branding to titles or display names. Use owner handles where needed for repository URLs and code ownership; avoid repeated maintainer references.
+- Preserve upstream attribution and the licence. Add or change attribution/licensing material only as needed to retain notices, identify modifications, or distribute the licence with installed files. Avoid duplicate attribution and modification banners.
 
 ## Compatibility comes first
 
@@ -56,7 +63,7 @@ git diff --check
 - Mock every cloud interaction, including authentication, device discovery, polling, refresh, activation writes, and switch commands. Disable real network sockets in the test suite. Use controlled time rather than real delays.
 - Use entirely synthetic fixtures and identities such as `example.invalid`. Cover setup, reload/unload, options, reauthentication, entry preservation, multiple devices, token rotation, transient errors, invalid data, stale data, and recovery as relevant to each change.
 - Do not hide failing tests, weaken assertions, or perform broad formatting churn to obtain a green check. For a confirmed pre-existing defect only, a narrowly scoped strict expected-failure test may establish the initial baseline: it must execute, match the specific known failure, cite the finding, and identify the fix PR that removes it. Never exclude a whole module or imply an expected failure proves compatibility.
-- Run hassfest and HACS validation on pull requests. Validate the packaged integration as well as the source tree before any later release. Metadata validation does not replace runtime tests.
+- Run hassfest and HACS validation on pushes and pull requests only; do not add scheduled runs unless explicitly requested. Validate the packaged integration as well as the source tree before any later release. Metadata validation does not replace runtime tests.
 - Documentation-only changes need link/path, scope, sensitive-data, and whitespace checks; do not invent application test results for them.
 
 ## Privacy and security

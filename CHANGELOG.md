@@ -4,10 +4,9 @@
 ## Unreleased — 2026.10.0
 
 ### Packaging and documentation
-* Prepare the Wiggi26 public fork for HACS installation directly from `custom_components/owlet`, without an uploaded `owlet.zip` asset.
-* Point current support and installation links to the fork; document upgrades, rollback, known compatibility limits, and release versioning.
-* Retain `pyowletapi==2025.4.1`, the integration domain, all configuration and entity identities, and the original runtime code.
-* Include the Apache-2.0 licence and attribution in the installed integration directory. This version is reserved for a future release; no release has been published by this change.
+* Install through HACS from `custom_components/owlet` without an uploaded ZIP asset.
+* Update repository links and installation, upgrade, and troubleshooting instructions.
+* Run HACS and hassfest validation on pushes and pull requests only.
 
 ## 2025.4.3 (2025-04-15)
 ### Fix

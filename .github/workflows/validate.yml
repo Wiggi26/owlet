@@ -1,12 +1,9 @@
-# Modified by Wiggi26 in October 2026: fork validation, no release/deployment.
+# Updated validation actions and permissions; run on pushes and pull requests.
 name: Validate
 
 on:
   push:
   pull_request:
-  schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
 
 permissions:
   contents: read
