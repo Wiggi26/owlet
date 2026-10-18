@@ -16,6 +16,8 @@ These are the first three PRs **after approval of the documentation**, not three
 
 ### PR 1 — Establish an offline custom-integration test and CI baseline
 
+Baseline implemented: see [TESTING.md](TESTING.md) and the [audit follow-up](AUDIT.md#automated-test-baseline--18-october-2026). Both reviewed Core/Python profiles run 63 cases (56 pass, 7 strict expected failures), with 97.53% coverage. Infrastructure and fixture-provenance findings are addressed; the recorded runtime defects remain assigned to PRs 2 and 3 below. The small runtime-source diff is mechanical formatting/import cleanup required by the full-tree Ruff gate.
+
 Suggested branch: `test/offline-ci-baseline`. Priority: P1. Runtime application changes: none.
 
 Problem: the existing 27 tests target Home Assistant Core's source tree, lack a declared test environment, and are not run by Actions. Their mocks and expected device/entity names predate runtime changes. Fixtures contain capture-like data without synthetic provenance.

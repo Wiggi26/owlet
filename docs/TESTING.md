@@ -11,6 +11,8 @@ Tests run on Linux. Use Linux directly or WSL on Windows; no Home Assistant serv
 
 These are compatibility probes, not a claim that all features work on either release. Known defects are listed below. Changing either profile requires reviewing the plugin's exact Core/pytest requirements and updating the workflow, dependency markers, lockfile and version-specific naming assertions together.
 
+Baseline evidence: both GitHub matrix jobs at `121aa2d` report **56 passed, 7 strict expected failures, 97.53% combined line/branch coverage** in [run 39158262400](https://github.com/Wiggi26/owlet/actions/runs/39158262400). Final-head checks are linked in the PR. Local Linux verification uses the same profiles and thresholds; `--tb=line --show-capture=no` can shorten traceback rendering on slow WSL mounts without changing test execution.
+
 Run the current profile and quality checks from the repository root:
 
 ```sh
@@ -71,9 +73,10 @@ The following tests execute and reproduce specific pre-existing defects from [AU
 
 The stale-data regression uses an obviously historical timestamp to expose the missing guard. It does not prescribe a universal freshness cutoff. Passing tests and expected failures are reported separately; neither metadata validation nor coverage certifies live cloud/device compatibility.
 
+Flow tests also record the current generic `unknown` response to connection/timeouts and missing reauth feedback. Actionable error classification and translations remain roadmap PR 2 work.
+
 ## Adding regressions and remaining gaps
 
 Add synthetic inputs to the fixture factory and test the intended behaviour through the actual integration/HA APIs. Assert entry IDs, data/options, entity unique IDs and registry bindings when touching setup or reload. Verify failure followed by recovery. New regressions normally fail until fixed; use a narrow strict expected failure only for a confirmed baseline defect, with its exact signature, audit reference and named follow-up. Never weaken assertions or exclude modules to obtain green CI.
 
 Further coverage is needed for concurrent account refresh, partial token exchanges and process-restart/storage persistence, full library HTTP/status/throttling contracts, device rediscovery, all timestamp/firmware validity cases, unknown sleep codes, diagnostics redaction, and an actual cross-Core registry-storage migration. No live Dream/European-account or hardware acceptance test is included. Application source changes in this CI baseline are limited to mechanical formatting/import cleanup; runtime fixes remain separate work.
-
