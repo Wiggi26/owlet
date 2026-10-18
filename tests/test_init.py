@@ -17,7 +17,7 @@ from pyowletapi.exceptions import (
 
 from custom_components.owlet.const import DOMAIN
 
-from .fixture_data import SERIAL, TOKENS, device, properties
+from .fixture_data import SERIAL, TOKENS, device, load_fixture, properties
 
 
 async def test_async_setup_entry(hass, setup_entry, mock_api):
@@ -61,7 +61,8 @@ async def test_async_setup_entry_new_tokens(hass, config_entry, mock_api, locati
     if location == "authenticate":
         mock_api.authenticate.return_value = new
     elif location == "discovery":
-        mock_api.get_devices.return_value["tokens"] = new
+        mock_api.get_devices.return_value = load_fixture("get_devices_with_tokens.json")
+        assert mock_api.get_devices.return_value["tokens"] == new
     else:
         mock_api.get_properties.return_value["tokens"] = new
     assert await hass.config_entries.async_setup(config_entry_id)

@@ -1,0 +1,35 @@
+{
+  "response": {
+    "LOW_BATT_ALRT": {
+      "value": false
+    },
+    "LOW_HR_ALRT": {
+      "value": false
+    },
+    "HIGH_HR_ALRT": {
+      "value": false
+    },
+    "LOW_OX_ALRT": {
+      "value": false
+    },
+    "SOCK_DISCON_ALRT": {
+      "value": false
+    },
+    "SOCK_OFF": {
+      "value": false
+    },
+    "HIGH_OX_ALRT": {
+      "value": false
+    },
+    "LOST_POWER_ALRT": {
+      "value": false
+    },
+    "REAL_TIME_VITALS": {
+      "value": "{\"ox\": 98, \"hr\": 100, \"bat\": 80, \"btt\": 400, \"rsi\": -30, \"oxta\": 97, \"bso\": true, \"st\": 34, \"ss\": 8, \"mv\": 0, \"mvb\": 0, \"chg\": 1}",
+      "data_updated_at": "2026-10-18T12:00:00Z"
+    },
+    "oem_sock_version": {
+      "value": "{\"rev\": 3}"
+    }
+  }
+}

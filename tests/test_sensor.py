@@ -22,7 +22,9 @@ def sensor_id(hass, key):
     [(8, "light_sleep"), (1, "awake"), (15, "deep_sleep"), (0, "unknown")],
 )
 async def test_sensor_values(hass, setup_entry, mock_api, sleep, expected):
-    mock_api.get_properties.return_value = properties(sleep_state=sleep)
+    mock_api.get_properties.return_value = properties(
+        scenario="awake" if sleep == 1 else "asleep", sleep_state=sleep
+    )
     coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
     await coordinator.async_refresh()
     await hass.async_block_till_done()
@@ -42,7 +44,7 @@ async def test_sensor_values(hass, setup_entry, mock_api, sleep, expected):
 
 async def test_sensor_update_and_charging(hass, setup_entry, mock_api):
     coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
-    mock_api.get_properties.return_value = properties(charging=1, battery_percentage=80)
+    mock_api.get_properties.return_value = properties(scenario="charging")
     await coordinator.async_refresh()
     await hass.async_block_till_done()
     assert hass.states.get(sensor_id(hass, "battery_percentage")).state == "80.0"

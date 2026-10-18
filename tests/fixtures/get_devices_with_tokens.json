@@ -1,0 +1,20 @@
+{
+  "response": [
+    {
+      "device": {
+        "dsn": "SYNTHETIC-SOCK-001",
+        "product_name": "Synthetic sock",
+        "model": "Synthetic model",
+        "sw_version": "test",
+        "mac": "02:00:00:00:00:01",
+        "lan_ip": "192.0.2.1",
+        "connection_status": "Online"
+      }
+    }
+  ],
+  "tokens": {
+    "api_token": "synthetic-new-access",
+    "expiry": 2000000300,
+    "refresh": "synthetic-new-refresh"
+  }
+}

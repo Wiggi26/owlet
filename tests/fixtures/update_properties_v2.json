@@ -1,0 +1,55 @@
+{
+  "response": {
+    "LOW_BATT_ALRT": {
+      "value": false
+    },
+    "LOW_HR_ALRT": {
+      "value": false
+    },
+    "HIGH_HR_ALRT": {
+      "value": false
+    },
+    "LOW_OX_ALRT": {
+      "value": false
+    },
+    "SOCK_DISCON_ALRT": {
+      "value": false
+    },
+    "SOCK_OFF": {
+      "value": false
+    },
+    "CRIT_BATT_ALRT": {
+      "value": false
+    },
+    "CRIT_OX_ALRT": {
+      "value": false
+    },
+    "OXYGEN_LEVEL": {
+      "value": 98
+    },
+    "HEART_RATE": {
+      "value": 100
+    },
+    "BATT_LEVEL": {
+      "value": 50
+    },
+    "BLE_RSSI": {
+      "value": -30
+    },
+    "BASE_STATION_ON": {
+      "value": true
+    },
+    "SOCK_CONNECTION": {
+      "value": true
+    },
+    "MOVEMENT": {
+      "value": 0
+    },
+    "CHARGE_STATUS": {
+      "value": 0
+    },
+    "oem_sock_version": {
+      "value": "synthetic"
+    }
+  }
+}

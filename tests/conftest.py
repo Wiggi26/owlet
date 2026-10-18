@@ -11,7 +11,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.owlet.const import DOMAIN, POLLING_INTERVAL
 
-from .fixture_data import INPUT, TOKENS, device, properties
+from .fixture_data import INPUT, TOKENS, load_fixture, properties
 
 
 @pytest.fixture(autouse=True)
@@ -38,7 +38,7 @@ def mock_api():
             )
         mocks.authenticate.return_value = deepcopy(TOKENS)
         mocks.validate_authentication.return_value = None
-        mocks.get_devices.return_value = {"response": [device()]}
+        mocks.get_devices.return_value = load_fixture("get_devices.json")
         mocks.get_properties.return_value = properties()
         mocks.post_command.return_value = {"synthetic": True}
         forbidden = []
