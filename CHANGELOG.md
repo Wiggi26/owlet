@@ -1,6 +1,13 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## Unreleased — 2026.10.0
+
+### Packaging and documentation
+* Install through HACS from `custom_components/owlet` without an uploaded ZIP asset.
+* Update repository links and installation, upgrade, and troubleshooting instructions.
+* Run HACS and hassfest validation on pushes and pull requests only.
+
 ## 2025.4.3 (2025-04-15)
 ### Fix
 * Changes to how the sensors are stored to solve the issue where only one device is added, thanks [`@MarjovanLier`](https://github.com/MarjovanLier). ([`1244bff`](https://github.com/ryanbdclark/owlet/commit/1244bffcb48d7337a9d7a0da518959fe4b31a230))

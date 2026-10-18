@@ -1,0 +1,35 @@
+# Updated validation actions and permissions; run on pushes and pull requests.
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  hassfest:
+    name: Hassfest validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: home-assistant/actions/hassfest@cd6f3635a740c84d8a14f6121a90068b8ece6bf6
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      # HACS retrieves the branch/PR itself; no checkout or write token is needed.
+      - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa
+        with:
+          category: integration
+          comment: false
