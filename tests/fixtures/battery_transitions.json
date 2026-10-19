@@ -1,0 +1,34 @@
+{
+  "v3": [
+    {
+      "label": "not_charging",
+      "vitals": {"ox": 98, "hr": 100, "bat": 50, "btt": 400, "rsi": -30, "oxta": 97, "bso": true, "st": 34, "ss": 8, "mv": 0, "mvb": 0, "chg": 0}
+    },
+    {
+      "label": "charging_spike",
+      "vitals": {"ox": 98, "hr": 100, "bat": 100, "btt": 400, "rsi": -30, "oxta": 97, "bso": true, "st": 34, "ss": 8, "mv": 0, "mvb": 0, "chg": 1}
+    },
+    {
+      "label": "charging_stable",
+      "vitals": {"ox": 98, "hr": 100, "bat": 50, "btt": 400, "rsi": -30, "oxta": 97, "bso": true, "st": 34, "ss": 8, "mv": 0, "mvb": 0, "chg": 1}
+    },
+    {
+      "label": "recovered",
+      "vitals": {"ox": 98, "hr": 100, "bat": 50, "btt": 400, "rsi": -30, "oxta": 97, "bso": true, "st": 34, "ss": 8, "mv": 0, "mvb": 0, "chg": 0}
+    },
+    {
+      "label": "charging_unknown",
+      "vitals": {"ox": 98, "hr": 100, "bat": 50, "btt": 400, "rsi": -30, "oxta": 97, "bso": true, "st": 34, "ss": 8, "mv": 0, "mvb": 0}
+    },
+    {
+      "label": "battery_missing",
+      "vitals": {"ox": 98, "hr": 100, "btt": 400, "rsi": -30, "oxta": 97, "bso": true, "st": 34, "ss": 8, "mv": 0, "mvb": 0, "chg": 0}
+    }
+  ],
+  "v2": [
+    {"label": "not_charging", "battery": 50, "charging": 0},
+    {"label": "charging_spike", "battery": 100, "charging": 1},
+    {"label": "charging_recovery", "battery": 50, "charging": 1},
+    {"label": "recovered", "battery": 50, "charging": 0}
+  ]
+}
