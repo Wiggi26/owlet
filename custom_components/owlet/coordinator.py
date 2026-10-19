@@ -6,7 +6,6 @@ import logging
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_EMAIL
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -48,8 +47,6 @@ class OwletCoordinator(DataUpdateCoordinator):
                     data={**self.config_entry.data, **properties["tokens"]},
                 )
         except OwletAuthenticationError as err:
-            raise ConfigEntryAuthFailed(
-                f"Authentication failed for {self.config_entry.data[CONF_EMAIL]}"
-            ) from err
+            raise ConfigEntryAuthFailed("Authentication failed") from err
         except (OwletError, OwletConnectionError) as err:
             raise UpdateFailed(err) from err
