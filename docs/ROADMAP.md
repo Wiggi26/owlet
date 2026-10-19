@@ -1,6 +1,6 @@
 # Owlet remediation roadmap
 
-Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled **19 October 2026** at fork `main` `85173c1`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
+Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled **19 October 2026** at fork `main` `2f15566`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
 
 ## Baseline and decision rules
 
@@ -8,7 +8,7 @@ Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled
 
 The original baseline on Core/Python 2025.12.4/3.13.2 and 2026.10.2/3.14.2 had 56 passes and seven strict expected failures, with 97.53% combined coverage. Later merged results and remaining gates are in the [audit reconciliation](AUDIT.md#merged-evidence-reconciliation--19-october-2026). [TESTING.md](TESTING.md) explains the exact locked environments and limits. These probes do not yet establish a supported version range. Keep `pyowletapi==2025.4.1` until an explicitly reviewed contract/dependency change is justified.
 
-The original roadmap's “PR 1/2/3” were conceptual stages, not GitHub PR numbers. The merged infrastructure is GitHub PR #2; the original seven expected failures map to stable findings below; three remain at this reconciled main. New implementation PRs must cite those IDs rather than treating the old stage numbers as issue ownership.
+The original roadmap's “PR 1/2/3” were conceptual stages, not GitHub PR numbers. The merged infrastructure is GitHub PR #2; the original seven expected failures map to stable findings below; only the stale-source regression remains as a strict expected failure at this reconciled main. New implementation PRs must cite those IDs rather than treating the old stage numbers as issue ownership.
 
 ## Merged progress and next scopes
 
@@ -17,11 +17,15 @@ The original roadmap's “PR 1/2/3” were conceptual stages, not GitHub PR numb
 - [#30](https://github.com/Wiggi26/owlet/pull/30): OWL-017 retained-library contracts verified; #7 closed. Keep the pin; token/HTTP work still needs its own prerequisites.
 - [#33](https://github.com/Wiggi26/owlet/pull/33) and [#35](https://github.com/Wiggi26/owlet/pull/35): reauth and metadata fixes merged; #4/#16 await their mandatory synthetic UI/device-page checks.
 - [#34](https://github.com/Wiggi26/owlet/pull/34): normalized getters fixed; #9 still needs raw malformed-field isolation and UI/recovery acceptance. Do not infer parser validity from robust getters.
+- [#37](https://github.com/Wiggi26/owlet/pull/37): saved polling changes now apply to running coordinators; #3 still requires synthetic options UI/restart/effective-interval/binding acceptance.
+- [#38](https://github.com/Wiggi26/owlet/pull/38): normalized numeric validity handling merged; #10 remains open for raw parser coercion/failure isolation and synthetic UI acceptance. Sleep handling was fixed in #29.
+- [#39](https://github.com/Wiggi26/owlet/pull/39): integration-owned error/log privacy paths fixed; #6 remains open for Core-generated entry-title and switch-command privacy concerns tracked by #15.
 
-Prioritise remaining #3 options updates, independent #6 privacy and #10 numeric
-validity. Serialize #3/#6 because they touch setup; avoid simultaneous #9/#10
-parser/entity work. #5/#8 retain #4's verification gate; #12 still needs #8.
-Do not use an unmerged implementation PR to satisfy another issue's prerequisite.
+Next investigate raw property coercion/failure isolation for #9 and, independently,
+the reported charging battery spike for #18. Keep #3/#4/#6/#10 open for their
+stated manual checks or remaining scopes; #5/#8 retain #4's verification gate,
+and #12 still needs #8. Do not use an unmerged implementation PR to satisfy
+another issue's prerequisite.
 
 ## Critical blockers
 
@@ -63,11 +67,9 @@ Freshness has high impact but needs protocol evidence; it must not be “fixed�
 
 | Test | Finding | Issue |
 | --- | --- | --- |
-| `test_saved_interval_applies` | OWL-003 | [#3](https://github.com/Wiggi26/owlet/issues/3) |
 | `test_old_source_measurement_unavailable` | OWL-011 | [#11](https://github.com/Wiggi26/owlet/issues/11) |
-| `test_oxygen_sentinel_unavailable` | OWL-012 | [#10](https://github.com/Wiggi26/owlet/issues/10) |
 
-Each fix must make the intended test pass, remove only its matching strict marker, add relevant edge/recovery tests and update merged evidence. Do not skip tests or reinterpret an expected failure as compatibility.
+The stale-source test remains a strict expected failure pending protocol evidence and a reviewed freshness policy. The saved-interval and normalized oxygen validity markers were removed by merged PRs #37 and #38. Each future fix must remove only its matching marker, add relevant edge/recovery tests and update merged evidence. Do not skip tests or reinterpret an expected failure as compatibility.
 
 ## Medium-priority improvements
 
