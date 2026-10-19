@@ -23,6 +23,7 @@ from .regressions import PollingOptionDefect
     [OwletConnectionError(), OwletError(), TimeoutError(), RuntimeError("synthetic")],
 )
 async def test_coordinator_error_and_recovery(hass, setup_entry, mock_api, error):
+    saved_data, saved_options = dict(setup_entry.data), dict(setup_entry.options)
     coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
     entity_id = er.async_get(hass).async_get_entity_id(
         "sensor", DOMAIN, f"{SERIAL}-heart_rate"
@@ -31,6 +32,11 @@ async def test_coordinator_error_and_recovery(hass, setup_entry, mock_api, error
     await coordinator.async_refresh()
     await hass.async_block_till_done()
     assert not coordinator.last_update_success
+    assert setup_entry.state is ConfigEntryState.LOADED
+    assert hass.config_entries.async_get_entry(setup_entry.entry_id) is setup_entry
+    assert setup_entry.data == saved_data
+    assert setup_entry.options == saved_options
+    assert not hass.config_entries.flow.async_progress()
     assert hass.states.get(entity_id).state == "unavailable"
     registry = er.async_get(hass)
     for platform, key in (("binary_sensor", "charging"), ("switch", "base_station_on")):
@@ -44,6 +50,9 @@ async def test_coordinator_error_and_recovery(hass, setup_entry, mock_api, error
     await hass.async_block_till_done()
     assert coordinator.last_update_success
     assert hass.states.get(entity_id).state == "101.0"
+    assert not hass.config_entries.flow.async_progress()
+    assert setup_entry.data == saved_data
+    assert setup_entry.options == saved_options
 
 
 @pytest.mark.parametrize(
@@ -72,20 +81,15 @@ async def test_malformed_numeric_poll_unavailable(hass, setup_entry, mock_api, v
     assert not coordinator.last_update_success
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=KeyError,
-    reason="AUDIT: polling auth reads email instead of username; roadmap PR 2",
-)
 async def test_coordinator_auth_error(hass, setup_entry, mock_api):
     coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
     mock_api.get_properties.side_effect = OwletAuthenticationError()
-    try:
-        with pytest.raises(ConfigEntryAuthFailed):
-            await coordinator._async_update_data()
-    except KeyError as err:
-        assert err.args == ("email",)
-        raise
+    with pytest.raises(
+        ConfigEntryAuthFailed, match="^Authentication failed$"
+    ) as raised:
+        await coordinator._async_update_data()
+    for key in ("username", "api_token", "refresh"):
+        assert setup_entry.data[key] not in str(raised.value)
 
 
 @pytest.mark.xfail(
