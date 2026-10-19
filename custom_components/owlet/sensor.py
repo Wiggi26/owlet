@@ -183,7 +183,10 @@ class OwletSleepSensor(OwletSensor):
     @property
     def native_value(self) -> StateType:
         """Return sensor value."""
-        return SLEEP_STATES[self.sock.properties["sleep_state"]]
+        sleep_state = self.sock.properties.get("sleep_state")
+        if type(sleep_state) is not int:
+            return "unknown"
+        return SLEEP_STATES.get(sleep_state, "unknown")
 
 
 class OwletOxygenAverageSensor(OwletSensor):

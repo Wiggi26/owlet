@@ -166,6 +166,9 @@ class OwletAwakeSensor(OwletBinarySensor):
         super().__init__(coordinator, self.entity_description)
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> bool | None:
         """Return true if the binary sensor is on."""
-        return self.sock.properties[self.entity_description.key] not in [8, 15]
+        sleep_state = self.sock.properties.get(self.entity_description.key)
+        if type(sleep_state) is not int or sleep_state not in (1, 8, 15):
+            return None
+        return sleep_state == 1
