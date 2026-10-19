@@ -6,7 +6,13 @@ This public fork maintains the existing Home Assistant custom integration for Ow
 
 The integration is supplemental to the official Owlet app, base station, and alarm system. Do not describe Home Assistant readings, notifications, or dashboard colours as medical advice, a safety guarantee, or a replacement alarm system. Never add automatic alarm acknowledgement, silencing, or changes to official monitoring behaviour as a maintenance shortcut.
 
-The current authorised work is audit triage, a remediation issue backlog in the public fork, and planning documentation. Do not modify application code, dependencies, configuration, tests, workflows or dashboards in this planning task. Fix implementation needs separate authorisation. Do not deploy, merge, or publish a release. Stop after presenting the documentation and remediation plan for review.
+The current setup task authorises the reusable issue-sprint skill, project-scoped Codex configuration, issue-management labels, documentation and a setup-only PR. Do not fix backlog issues or change integration code, dependencies, integration configuration, tests, GitHub Actions workflows or dashboards during setup. A later explicit instruction to run an implementation batch authorises only the selected issue scopes under the process below. A planning/dry-run instruction never authorises fixes. Do not deploy, merge, or publish a release.
+
+## Reusable issue batches
+
+- Follow [owlet-issue-sprint](.agents/skills/owlet-issue-sprint/SKILL.md) and [the runbook](docs/ISSUE_SPRINT.md). A bare invocation is a dry run; implementation needs an explicit instruction. Stop after one batch.
+- Native subagents are authorised when useful: at most three active across the batch, without nested fan-out. Default to GPT-6 Luna with high reasoning for focused work; use GPT-6.1 Sol for auth/async/cloud/state work and high-risk review. The coordinator alone claims/assigns issues and manages GitHub writes. Use separate top-level worktrees per independent issue PR; shared-worktree edits must not overlap.
+- Preserve existing labels and evidence gates. Keep audit/roadmap edits out of parallel implementation branches; reconcile after merge in one documentation change. Report attempted scopes, PR-ready versus merged/verified work, PRs/CI, blockers, manual checks and the next batch. Never automatically merge, deploy or publish.
 
 ## Authoritative GitHub repository
 
