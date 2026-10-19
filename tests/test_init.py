@@ -1,6 +1,7 @@
 """Setup, discovery, token persistence, identity and unload baseline."""
 
 from copy import deepcopy
+from datetime import timedelta
 from importlib.metadata import version
 from unittest.mock import ANY
 
@@ -46,6 +47,20 @@ async def test_async_setup_entry(hass, setup_entry, mock_api):
     assert await hass.config_entries.async_unload(setup_entry.entry_id)
     assert setup_entry.state is ConfigEntryState.NOT_LOADED
     assert setup_entry.entry_id not in hass.data[DOMAIN]
+
+
+async def test_missing_scan_interval_uses_default(hass, config_entry, mock_api):
+    """Older entries without the option retain the five-second polling default."""
+    original_data = dict(config_entry.data)
+    hass.config_entries.async_update_entry(config_entry, options={})
+
+    assert await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    coordinator = hass.data[DOMAIN][config_entry.entry_id][SERIAL]
+    assert coordinator.update_interval == timedelta(seconds=5)
+    assert config_entry.data == original_data
+    assert config_entry.options == {}
 
 
 @pytest.mark.parametrize("location", ["authenticate", "discovery", "poll"])
