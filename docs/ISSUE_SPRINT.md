@@ -77,15 +77,17 @@ and write access before every GitHub write, including label changes.
 | --- | --- |
 | `audit` | Stable audit-backlog marker. |
 | `agent:ready` | Unclaimed scope is eligible, subject to live review. |
-| `agent:in-progress` | Coordinator recorded an active assignment. |
+| `agent:in-progress` | A recorded agent assignment is actively implementing the issue. |
 | `agent:blocked` | Named prerequisite, evidence gap or failed check prevents work. |
-| `agent:needs-review` | PR/evidence awaits review; issue remains open. |
-| `agent:needs-manual-test` | Additional flag for outstanding owner-run acceptance. |
+| `agent:needs-review` | An open implementation PR awaits review; issue remains open. |
+| `agent:needs-manual-test` | All fixes are merged; mandatory owner-run device verification remains. |
 
-Use one ready/in-progress/blocked/needs-review state plus the optional manual
-flag. Explain changed blockers/transitions without repeating unchanged comments.
-After full merged verification, close/reconcile and remove obsolete agent flags;
-otherwise keep the issue open with its remaining scope.
+Use exactly one lifecycle label per open managed issue. Closed means every
+acceptance criterion is satisfied and verified after merge; remove lifecycle
+labels. Preserve `audit` and unrelated labels. Follow the skill's
+[lifecycle transitions](../.agents/skills/owlet-issue-sprint/SKILL.md#issue-lifecycle)
+and [closure gate](../.agents/skills/owlet-issue-sprint/SKILL.md#closure-gate),
+including partial fixes, blockers, manual checks and premature closure recovery.
 
 ## Exclusive coordinator claim
 
@@ -108,8 +110,10 @@ otherwise keep the issue open with its remaining scope.
    no automatic expiry: inspect owner, agents, worktrees and handoffs before
    explicitly approved recovery. Never auto-steal a claim or delete issue branches.
 
-Dry runs do not create locks or change labels. Use `Refs #N`, avoid auto-close
-keywords and verify fork push URL and both PR repositories before delivery.
+Dry runs do not create locks or change labels. Use `Closes #NUMBER` only when the
+skill's closure gate is satisfied; otherwise use `Refs #NUMBER` and document the
+remaining requirements. Never close before merge. Verify fork push URL and both
+PR repositories before delivery.
 Attach PRs to the Codex chat; inspect CI on the latest head. Shared audit/roadmap
 updates wait for merged evidence in one later documentation change.
 
