@@ -32,7 +32,8 @@ The current setup task authorises the reusable issue-sprint skill, project-scope
 
 ## Documentation and review preferences
 
-- Keep PR descriptions concise: describe the change, relevant checks, and unresolved issues. Keep detailed verification evidence in the audit or packaging document instead of repeating it.
+- Keep documentation and PR descriptions concise and proportional to the change: state the decision or behaviour, relevant checks, and remaining limits. Link to tests, CI and existing audit evidence instead of repeating them; omit exhaustive implementation narratives, duplicated evidence and boilerplate.
+- Keep finding IDs and GitHub references in audit/issue/PR tracking, not ordinary code comments or docstrings. Retain the narrowly scoped regression/xfail references required below.
 - Limit README edits to factual behaviour, usage, installation, upgrades, and troubleshooting relevant to the change. Keep audit narratives, implementation plans, and release-process details in `docs/`.
 - Preserve existing integration names; do not add fork or owner branding to titles or display names. Use owner handles where needed for repository URLs and code ownership; avoid repeated maintainer references.
 - Preserve upstream attribution and the licence. Add or change attribution/licensing material only as needed to retain notices, identify modifications, or distribute the licence with installed files. Avoid duplicate attribution and modification banners.
