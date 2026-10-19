@@ -10,7 +10,6 @@ from homeassistant.const import (
     CONF_API_TOKEN,
     CONF_REGION,
     CONF_SCAN_INTERVAL,
-    CONF_USERNAME,
     Platform,
 )
 from homeassistant.core import HomeAssistant
@@ -44,48 +43,48 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Owlet Smart Sock from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
-    owlet_api = OwletAPI(
-        region=entry.data[CONF_REGION],
-        token=entry.data[CONF_API_TOKEN],
-        expiry=entry.data[CONF_OWLET_EXPIRY],
-        refresh=entry.data[CONF_OWLET_REFRESH],
-        session=async_get_clientsession(hass),
-    )
-
     try:
+        owlet_api = OwletAPI(
+            region=entry.data[CONF_REGION],
+            token=entry.data[CONF_API_TOKEN],
+            expiry=entry.data[CONF_OWLET_EXPIRY],
+            refresh=entry.data[CONF_OWLET_REFRESH],
+            session=async_get_clientsession(hass),
+        )
+
         if token := await owlet_api.authenticate():
             hass.config_entries.async_update_entry(entry, data={**entry.data, **token})
 
         devices = await owlet_api.get_devices(SUPPORTED_VERSIONS)
 
-    except (OwletAuthenticationError, OwletEmailError, OwletPasswordError) as err:
-        _LOGGER.error("Credentials no longer valid, please setup owlet again")
-        raise ConfigEntryAuthFailed(
-            f"Credentials expired for {entry.data[CONF_USERNAME]}"
-        ) from err
+        if "tokens" in devices:
+            hass.config_entries.async_update_entry(
+                entry, data={**entry.data, **devices["tokens"]}
+            )
 
-    except OwletConnectionError as err:
-        raise ConfigEntryNotReady(
-            f"Error connecting to {entry.data[CONF_USERNAME]}"
-        ) from err
+        options = entry.options
+        scan_interval = options.get(CONF_SCAN_INTERVAL, POLLING_INTERVAL)
+        coordinators = {
+            device["device"]["dsn"]: OwletCoordinator(
+                hass, Sock(owlet_api, device["device"]), scan_interval, entry
+            )
+            for device in devices["response"]
+        }
+
+    except (OwletAuthenticationError, OwletEmailError, OwletPasswordError):
+        _LOGGER.error("Credentials no longer valid, please setup owlet again")
+        raise ConfigEntryAuthFailed("Credentials expired") from None
+
+    except OwletConnectionError:
+        raise ConfigEntryNotReady("Error connecting to Owlet") from None
 
     except OwletDevicesError:
         _LOGGER.error("No owlet devices found to set up")
         return False
 
-    if "tokens" in devices:
-        hass.config_entries.async_update_entry(
-            entry, data={**entry.data, **devices["tokens"]}
-        )
-
-    options = entry.options
-    scan_interval = options.get(CONF_SCAN_INTERVAL, POLLING_INTERVAL)
-    coordinators = {
-        device["device"]["dsn"]: OwletCoordinator(
-            hass, Sock(owlet_api, device["device"]), scan_interval, entry
-        )
-        for device in devices["response"]
-    }
+    except Exception:
+        _LOGGER.error("Unexpected error setting up Owlet")
+        return False
 
     await asyncio.gather(
         *(

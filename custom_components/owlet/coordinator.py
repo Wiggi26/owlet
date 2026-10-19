@@ -46,7 +46,13 @@ class OwletCoordinator(DataUpdateCoordinator):
                     self.config_entry,
                     data={**self.config_entry.data, **properties["tokens"]},
                 )
-        except OwletAuthenticationError as err:
-            raise ConfigEntryAuthFailed("Authentication failed") from err
-        except (OwletError, OwletConnectionError) as err:
-            raise UpdateFailed(err) from err
+        except OwletAuthenticationError:
+            raise ConfigEntryAuthFailed("Authentication failed") from None
+        except OwletConnectionError:
+            raise UpdateFailed("Error connecting to Owlet") from None
+        except OwletError:
+            raise UpdateFailed("Error updating Owlet data") from None
+        except TimeoutError:
+            raise UpdateFailed("Timeout updating Owlet data") from None
+        except Exception:
+            raise UpdateFailed("Unexpected error updating Owlet data") from None

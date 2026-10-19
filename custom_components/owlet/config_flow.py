@@ -53,19 +53,23 @@ class OwletConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            owlet_api = OwletAPI(
-                region=user_input[CONF_REGION],
-                user=user_input[CONF_USERNAME],
-                password=user_input[CONF_PASSWORD],
-                session=async_get_clientsession(self.hass),
-            )
-
             await self.async_set_unique_id(user_input[CONF_USERNAME].lower())
             self._abort_if_unique_id_configured()
 
             try:
+                owlet_api = OwletAPI(
+                    region=user_input[CONF_REGION],
+                    user=user_input[CONF_USERNAME],
+                    password=user_input[CONF_PASSWORD],
+                    session=async_get_clientsession(self.hass),
+                )
                 token = await owlet_api.authenticate()
                 await owlet_api.validate_authentication()
+                data = {
+                    CONF_REGION: user_input[CONF_REGION],
+                    CONF_USERNAME: user_input[CONF_USERNAME],
+                    **token,
+                }
 
             except OwletDevicesError:
                 errors["base"] = "no_devices"
@@ -76,16 +80,12 @@ class OwletConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except OwletCredentialsError:
                 errors["base"] = "invalid_credentials"
             except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Unexpected exception")
+                _LOGGER.error("Unexpected error authenticating with Owlet")
                 errors["base"] = "unknown"
             else:
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME],
-                    data={
-                        CONF_REGION: user_input[CONF_REGION],
-                        CONF_USERNAME: user_input[CONF_USERNAME],
-                        **token,
-                    },
+                    data=data,
                     options={CONF_SCAN_INTERVAL: POLLING_INTERVAL},
                 )
 
@@ -117,13 +117,13 @@ class OwletConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             entry_data = self.reauth_entry.data
-            owlet_api = OwletAPI(
-                entry_data[CONF_REGION],
-                entry_data[CONF_USERNAME],
-                user_input[CONF_PASSWORD],
-                session=async_get_clientsession(self.hass),
-            )
             try:
+                owlet_api = OwletAPI(
+                    entry_data[CONF_REGION],
+                    entry_data[CONF_USERNAME],
+                    user_input[CONF_PASSWORD],
+                    session=async_get_clientsession(self.hass),
+                )
                 if token := await owlet_api.authenticate():
                     self.hass.config_entries.async_update_entry(
                         self.reauth_entry, data={**entry_data, **token}
@@ -138,7 +138,7 @@ class OwletConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except OwletPasswordError:
                 errors[CONF_PASSWORD] = "invalid_password"
             except Exception:  # pylint: disable=broad-except
-                _LOGGER.exception("Error reauthenticating")
+                _LOGGER.error("Unexpected error reauthenticating with Owlet")
 
         return self.async_show_form(
             step_id="reauth_confirm",
