@@ -6,7 +6,17 @@ This public fork maintains the existing Home Assistant custom integration for Ow
 
 The integration is supplemental to the official Owlet app, base station, and alarm system. Do not describe Home Assistant readings, notifications, or dashboard colours as medical advice, a safety guarantee, or a replacement alarm system. Never add automatic alarm acknowledgement, silencing, or changes to official monitoring behaviour as a maintenance shortcut.
 
-The current authorised work is audit triage, a remediation issue backlog in the public fork, and planning documentation. Do not modify application code, dependencies, configuration, tests, workflows or dashboards in this planning task. Fix implementation needs separate authorisation. Do not deploy, merge, or publish a release. Stop after presenting the documentation and remediation plan for review.
+The current setup task authorises the reusable issue-sprint skill, project-scoped Codex configuration, issue-management labels, documentation and a setup-only PR. Do not fix backlog issues or change integration code, dependencies, integration configuration, tests, GitHub Actions workflows or dashboards during setup. A later explicit instruction to run an implementation batch authorises only the selected issue scopes under the process below. A planning/dry-run instruction never authorises fixes. Do not deploy, merge, or publish a release.
+
+## Reusable issue batches
+
+- Use [owlet-issue-sprint](.agents/skills/owlet-issue-sprint/SKILL.md) and [the desktop runbook](docs/ISSUE_SPRINT.md) for issue batches, dry-run selection and merged-evidence reconciliation. A bare skill invocation defaults to a dry run; stop after one batch.
+- One coordinator retrieves the complete current backlog, audit, roadmap, dependencies and existing PRs/branches, then exclusively claims and assigns up to three independent issues. Workers never independently select or claim issues. Honour existing work and blocked prerequisites; fewer assignments are preferable to overlapping scopes.
+- Native subagents are authorised when useful for these workflows. Limit the entire batch to three active subagents, including investigators/reviewers; no nested fan-out. Prefer GPT-6 Luna for focused low-complexity work and GPT-6.1 Sol for authentication, async/cloud/state work and high-risk review. Do not route complex work to Luna solely to reduce usage.
+- Use a separate top-level worktree and `codex/issue-<number>-<scope>` branch per independent issue PR. Pass absolute worktree paths to workers; subagent threads share files and do not automatically create Git isolation. Delegate only non-overlapping edits in a shared worktree, with serial coordinator-owned Git operations.
+- Only the coordinator updates issue state and creates PRs. Reuse existing labels; preserve human labels. Use `audit`, one `agent:ready`/`agent:in-progress`/`agent:blocked`/`agent:needs-review` state, and the additional `agent:needs-manual-test` flag where required. Readiness is a triage decision, not a claim or resolution.
+- Keep parallel implementation branches out of `docs/AUDIT.md` and `docs/ROADMAP.md`. Record pending evidence in the issue/PR and reconcile shared tracking in a separate documentation change after merge. Keep grouped issues open until every finding and required verification is complete; avoid automatic closing keywords in implementation PRs.
+- Report attempted issues, PR-ready versus merged/verified work, PR URLs, exact-head CI, blockers, manual verification and the recommended next batch. Never automatically merge, deploy to Home Assistant or publish a release.
 
 ## Authoritative GitHub repository
 
