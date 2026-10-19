@@ -1,6 +1,6 @@
 # Owlet remediation roadmap
 
-Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled **19 October 2026** at fork `main` `d178a33`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
+Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled **19 October 2026** at fork `main` `7e50be2`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
 
 ## Baseline and decision rules
 
@@ -23,6 +23,7 @@ The original roadmap's “PR 1/2/3” were conceptual stages, not GitHub PR numb
 
 - [#41](https://github.com/Wiggi26/owlet/pull/41): raw V2/V3 parser contracts merged; #9 remains blocked on a library normalization fix or supported hook and synthetic UI acceptance. See [the boundary investigation](RAW_PROPERTIES.md).
 - [#42](https://github.com/Wiggi26/owlet/pull/42): battery investigation complete; #18 closed. Synthetic transitions show faithful input exposure without establishing a production cloud/firmware cause. No filtering is justified.
+- [#43](https://github.com/Wiggi26/owlet/pull/43): actual-Core logging contracts confirm default/custom entry-title exposure. [The remedy boundary](LOG_PRIVACY.md) leaves #6 blocked on a supported title-safe approach, switch-command privacy and synthetic log/report acceptance; no dependent gate is cleared.
 
 Prioritise a reviewed library normalization path for #9. Complete owner-run
 synthetic acceptance for #3/#4/#16 before treating their gates as satisfied;
