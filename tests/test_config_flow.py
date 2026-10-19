@@ -3,6 +3,7 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD
 from homeassistant.data_entry_flow import FlowResultType
@@ -123,20 +124,30 @@ async def test_reauth_errors(hass, config_entry, mock_api, error, expected):
     assert config_entry.data == original
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=AttributeError,
-    reason="AUDIT: current-Core options property has no setter; roadmap PR 2 removes this marker",
-)
 async def test_options_flow(hass, config_entry):
-    try:
-        result = await hass.config_entries.options.async_init(config_entry.entry_id)
-    except AttributeError as err:
-        assert "config_entry" in str(err) and "no setter" in str(err)
-        raise
+    hass.config_entries.async_update_entry(
+        config_entry, options={"scan_interval": 5, "preserved_option": "synthetic"}
+    )
+    result = await hass.config_entries.options.async_init(config_entry.entry_id)
     assert result["type"] is FlowResultType.FORM
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {"scan_interval": 10}
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
-    assert config_entry.options == {"scan_interval": 10}
+    assert config_entry.options == {
+        "scan_interval": 10,
+        "preserved_option": "synthetic",
+    }
+    reopened = await hass.config_entries.options.async_init(config_entry.entry_id)
+    assert reopened["type"] is FlowResultType.FORM
+    assert reopened["data_schema"]({}) == {"scan_interval": 10}
+
+
+async def test_options_flow_missing_interval_default_and_minimum(hass, config_entry):
+    hass.config_entries.async_update_entry(config_entry, options={})
+    result = await hass.config_entries.options.async_init(config_entry.entry_id)
+    assert result["type"] is FlowResultType.FORM
+    schema = result["data_schema"]
+    assert schema({}) == {"scan_interval": 5}
+    with pytest.raises(vol.Invalid):
+        schema({"scan_interval": 4})
