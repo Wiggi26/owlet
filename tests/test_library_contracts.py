@@ -1,4 +1,4 @@
-"""OWL-017: observed contracts of the retained library, with no cloud access."""
+"""Observed contracts of the retained library, with no cloud access."""
 
 import asyncio
 import json

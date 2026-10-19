@@ -16,7 +16,7 @@ def test_manifest_dependency_matches_environment():
 
 
 def test_retained_library_metadata_contract():
-    """OWL-017: a new exact pin needs separate review, including its metadata."""
+    """Require separate review of any new exact pin, including its metadata."""
     assert version("pyowletapi") == "2025.4.1"
     assert metadata("pyowletapi")["Requires-Python"] == ">=3.10"
     assert requires("pyowletapi") == ["aiohttp"]
