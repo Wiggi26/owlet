@@ -78,7 +78,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             entry, data={**entry.data, **devices["tokens"]}
         )
 
-    scan_interval = entry.options.get(CONF_SCAN_INTERVAL, POLLING_INTERVAL)
+    options = entry.options
+    scan_interval = options.get(CONF_SCAN_INTERVAL, POLLING_INTERVAL)
     coordinators = {
         device["device"]["dsn"]: OwletCoordinator(
             hass, Sock(owlet_api, device["device"]), scan_interval, entry
@@ -96,6 +97,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = coordinators
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    async def async_update_options(
+        hass: HomeAssistant, updated_entry: ConfigEntry
+    ) -> None:
+        """Reload for changed options, leaving token-only updates running."""
+        nonlocal options
+        if updated_entry.options != options:
+            options = updated_entry.options
+            hass.config_entries.async_schedule_reload(updated_entry.entry_id)
+
+    entry.async_on_unload(entry.add_update_listener(async_update_options))
 
     return True
 
