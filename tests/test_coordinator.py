@@ -15,7 +15,6 @@ from pyowletapi.exceptions import (
 from custom_components.owlet.const import DOMAIN
 
 from .fixture_data import SERIAL, properties
-from .regressions import PollingOptionDefect
 
 
 @pytest.mark.parametrize(
@@ -92,18 +91,9 @@ async def test_coordinator_auth_error(hass, setup_entry, mock_api):
         assert setup_entry.data[key] not in str(raised.value)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=PollingOptionDefect,
-    reason="AUDIT: saved options do not update running polling; roadmap PR 2",
-)
 async def test_saved_interval_applies(hass, setup_entry):
     coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
     hass.config_entries.async_update_entry(setup_entry, options={"scan_interval": 10})
     await hass.async_block_till_done()
     coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
-    if coordinator.update_interval == timedelta(seconds=5):
-        raise PollingOptionDefect(
-            "The saved interval is 10; the running interval remains 5"
-        )
     assert coordinator.update_interval == timedelta(seconds=10)

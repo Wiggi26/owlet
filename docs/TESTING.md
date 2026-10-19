@@ -59,17 +59,15 @@ pytest-socket blocks network sockets, allowing Unix sockets for the event loop. 
 
 Coverage includes configuration/duplicate-account flows, reauthentication, setup/unload/reload, token rotation, discovery errors, connection failures/timeouts, malformed responses, V2/V3 entity creation, two-sock isolation, state/availability changes, charging, switches and registry/config identity preservation. Naming assertions distinguish newly generated entity IDs on the two Core versions; reload checks preserve already registered IDs and user customisations.
 
-The following tests execute and reproduce specific pre-existing defects from [AUDIT.md](AUDIT.md). Their strict expected-failure markers match a checked exception or a dedicated failure class; unrelated failures remain failures. Fixing one unexpectedly passes CI and requires removing its marker. No whole module is skipped.
+At reconciled main `85173c1`, the following three tests execute and reproduce specific pre-existing defects from [AUDIT.md](AUDIT.md). Their strict expected-failure markers match a checked exception or a dedicated failure class; unrelated failures remain failures. Fixing one unexpectedly passes CI and requires removing its marker. No whole module is skipped.
 
 | Regression | Finding / follow-up |
 | --- | --- |
-| `test_options_flow` | Read-only options property; roadmap PR 2 |
-| `test_coordinator_auth_error` | Polling authentication accesses `email`; roadmap PR 2 |
 | `test_saved_interval_applies` | Saved options leave active polling unchanged; roadmap PR 2 |
 | `test_old_source_measurement_unavailable` | Years-old source readings remain available; roadmap PR 3 |
 | `test_oxygen_sentinel_unavailable` | Instantaneous oxygen 255 remains available; roadmap PR 3 |
-| `test_unknown_sleep_not_awake` | Unknown sleep code becomes awake; roadmap PR 3 |
-| `test_missing_measurement_is_unknown` | Missing optional measurement raises in getter; roadmap PR 3 |
+
+Merged options/default, sleep, polling-reauth and normalized-getter fixes removed only their matching markers. Their exact tested versions/results and remaining manual gates are in the [audit reconciliation](AUDIT.md#merged-evidence-reconciliation--19-october-2026).
 
 The stale-data regression uses an obviously historical timestamp to expose the missing guard. It does not prescribe a universal freshness cutoff. Passing tests and expected failures are reported separately; neither metadata validation nor coverage certifies live cloud/device compatibility.
 
@@ -79,4 +77,4 @@ Flow tests also record the current generic `unknown` response to connection/time
 
 Add or update synthetic JSON baselines for complete response scenarios; use helper overrides for individual edge cases. Test the intended behaviour through the actual integration/HA APIs. Assert entry IDs, data/options, entity unique IDs and registry bindings when touching setup or reload. Verify failure followed by recovery. New regressions normally fail until fixed; use a narrow strict expected failure only for a confirmed baseline defect, with its exact signature, audit reference and named follow-up. Never weaken assertions or exclude modules to obtain green CI.
 
-Further coverage is needed for concurrent account refresh, partial token exchanges and process-restart/storage persistence, full library HTTP/status/throttling contracts, device rediscovery, all timestamp/firmware validity cases, unknown sleep codes, diagnostics redaction, and an actual cross-Core registry-storage migration. No live Dream/European-account or hardware acceptance test is included. Application source changes in this CI baseline are limited to mechanical formatting/import cleanup; runtime fixes remain separate work.
+Further coverage is needed for concurrent account refresh, partial token exchanges and process-restart/storage persistence, HTTP/backoff handling beyond the [retained-library contracts](LIBRARY_CONTRACTS.md), device rediscovery, raw malformed-field isolation, timestamp/firmware validity cases, diagnostics redaction, and an actual cross-Core registry-storage migration. No live Dream/European-account or hardware acceptance test is included. The original CI baseline changed source only mechanically; subsequent runtime fixes are recorded separately in the audit.
