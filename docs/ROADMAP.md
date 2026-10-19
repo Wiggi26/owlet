@@ -1,6 +1,6 @@
 # Owlet remediation roadmap
 
-Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled **19 October 2026** at fork `main` `2f15566`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
+Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled **19 October 2026** at fork `main` `d178a33`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
 
 ## Baseline and decision rules
 
@@ -12,8 +12,8 @@ The original roadmap's “PR 1/2/3” were conceptual stages, not GitHub PR numb
 
 ## Merged progress and next scopes
 
-- [#28](https://github.com/Wiggi26/owlet/pull/28): OWL-001/002 options/defaults code merged; OWL-003 listener/update work is now the next options scope. Manual options/restart acceptance remains.
-- [#29](https://github.com/Wiggi26/owlet/pull/29): OWL-013 sleep fix merged; OWL-012 numeric validation and synthetic UI acceptance remain in #10.
+- [#28](https://github.com/Wiggi26/owlet/pull/28): OWL-001/002 options/defaults code merged; listener/update work followed in #37. Manual options/restart acceptance remains.
+- [#29](https://github.com/Wiggi26/owlet/pull/29): OWL-013 sleep fix merged; normalized numeric validity followed in #38. Raw validity and synthetic UI acceptance remain in #10.
 - [#30](https://github.com/Wiggi26/owlet/pull/30): OWL-017 retained-library contracts verified; #7 closed. Keep the pin; token/HTTP work still needs its own prerequisites.
 - [#33](https://github.com/Wiggi26/owlet/pull/33) and [#35](https://github.com/Wiggi26/owlet/pull/35): reauth and metadata fixes merged; #4/#16 await their mandatory synthetic UI/device-page checks.
 - [#34](https://github.com/Wiggi26/owlet/pull/34): normalized getters fixed; #9 still needs raw malformed-field isolation and UI/recovery acceptance. Do not infer parser validity from robust getters.
@@ -21,11 +21,14 @@ The original roadmap's “PR 1/2/3” were conceptual stages, not GitHub PR numb
 - [#38](https://github.com/Wiggi26/owlet/pull/38): normalized numeric validity handling merged; #10 remains open for raw parser coercion/failure isolation and synthetic UI acceptance. Sleep handling was fixed in #29.
 - [#39](https://github.com/Wiggi26/owlet/pull/39): integration-owned error/log privacy paths fixed; #6 remains open for Core-generated entry-title and switch-command privacy concerns tracked by #15.
 
-Next investigate raw property coercion/failure isolation for #9 and, independently,
-the reported charging battery spike for #18. Keep #3/#4/#6/#10 open for their
-stated manual checks or remaining scopes; #5/#8 retain #4's verification gate,
-and #12 still needs #8. Do not use an unmerged implementation PR to satisfy
-another issue's prerequisite.
+- [#41](https://github.com/Wiggi26/owlet/pull/41): raw V2/V3 parser contracts merged; #9 remains blocked on a library normalization fix or supported hook and synthetic UI acceptance. See [the boundary investigation](RAW_PROPERTIES.md).
+- [#42](https://github.com/Wiggi26/owlet/pull/42): battery investigation complete; #18 closed. Synthetic transitions show faithful input exposure without establishing a production cloud/firmware cause. No filtering is justified.
+
+Prioritise a reviewed library normalization path for #9. Complete owner-run
+synthetic acceptance for #3/#4/#16 before treating their gates as satisfied;
+#5/#8 retain #4's gate and #13 retains #3's. Serialize overlapping setup/flow
+scopes. #11 still needs #9 and #12 needs #8; unmerged work or issue closure
+alone cannot satisfy those prerequisites.
 
 ## Critical blockers
 
@@ -81,7 +84,7 @@ Each row is a separate PR or an investigation followed by a narrowly justified f
 | Existing base-station switch capability/result handling | OWL-018; [#15](https://github.com/Wiggi26/owlet/issues/15) | Missing-field/library contracts; failed commands are visible, identity retained. Mocked commands only; physical/alarm behaviour needs separate approval. |
 | Truthful hardware/MAC metadata | OWL-019; [#16](https://github.com/Wiggi26/owlet/issues/16) | Can proceed independently with registry tests. Omit invented facts/invalid connections; avoid casual renaming. |
 | Allowlisted diagnostics, repair and retention guidance | OWL-020 / OWL-021; [#17](https://github.com/Wiggi26/owlet/issues/17) | Privacy and freshness semantics first; exact synthetic output allowlist, no readings/config entries in exports, no changes to recorder settings. |
-| Charging battery spike investigation | OWL-022; [#18](https://github.com/Wiggi26/owlet/issues/18) | No hard prerequisite. Replay synthetic transitions and establish cause before filtering; report remains unverified. |
+| Charging battery spike investigation | OWL-022; [#18](https://github.com/Wiggi26/owlet/issues/18), closed | Completed in #42; [synthetic evidence](BATTERY.md) shows input passthrough. Production cause remains unverified; no filter justified. |
 | Region-aware account identity | OWL-023; [#19](https://github.com/Wiggi26/owlet/issues/19) | Flow/token stability first; separately reviewed old-entry migration/rollback with stable entity bindings. Do not copy upstream PR #30 wholesale. |
 
 ## Low-priority enhancements
