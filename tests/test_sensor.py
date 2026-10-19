@@ -10,7 +10,7 @@ from custom_components.owlet.const import DOMAIN
 from custom_components.owlet.sensor import SENSORS, OwletSensor
 
 from .fixture_data import SERIAL, device, properties
-from .regressions import InvalidOxygenDefect, StaleMeasurementDefect
+from .regressions import StaleMeasurementDefect
 
 
 def sensor_id(hass, key):
@@ -77,19 +77,11 @@ async def test_invalid_oxygen_average_unavailable(hass, setup_entry, mock_api, a
     assert hass.states.get(sensor_id(hass, "oxygen_10_av")).state == "unavailable"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=InvalidOxygenDefect,
-    reason="AUDIT: instantaneous oxygen sentinel validation missing; roadmap PR 3",
-)
 async def test_oxygen_sentinel_unavailable(hass, setup_entry, mock_api):
     mock_api.get_properties.return_value = properties(oxygen_saturation=255)
     await hass.data[DOMAIN][setup_entry.entry_id][SERIAL].async_refresh()
     await hass.async_block_till_done()
-    state = hass.states.get(sensor_id(hass, "oxygen_saturation")).state
-    if state == "255.0":
-        raise InvalidOxygenDefect("Known oxygen sentinel 255 is still available")
-    assert state == "unavailable"
+    assert hass.states.get(sensor_id(hass, "oxygen_saturation")).state == "unavailable"
 
 
 @pytest.mark.xfail(
