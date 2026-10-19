@@ -19,7 +19,12 @@ def sensor_id(hass, key):
 
 @pytest.mark.parametrize(
     ("sleep", "expected"),
-    [(8, "light_sleep"), (1, "awake"), (15, "deep_sleep"), (0, "unknown")],
+    [
+        (8, "light_sleep"),
+        (1, "awake"),
+        (15, "deep_sleep"),
+        (0, "unknown"),
+    ],
 )
 async def test_sensor_values(hass, setup_entry, mock_api, sleep, expected):
     mock_api.get_properties.return_value = properties(

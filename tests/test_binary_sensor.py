@@ -5,9 +5,9 @@ from homeassistant.helpers import entity_registry as er
 
 from custom_components.owlet.binary_sensor import OwletAwakeSensor
 from custom_components.owlet.const import DOMAIN
+from custom_components.owlet.sensor import OwletSleepSensor
 
 from .fixture_data import SERIAL, properties
-from .regressions import UnknownSleepDefect
 
 
 def entity_id(hass, key):
@@ -55,17 +55,58 @@ async def test_binary_sensors_v2(hass, config_entry, mock_api):
         assert hass.states.get(entity_id(hass, key)).state == "off"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=UnknownSleepDefect,
-    reason="AUDIT: unknown sleep code becomes awake; roadmap PR 3",
+@pytest.mark.parametrize(
+    "sleep",
+    [0, 2, 99],
 )
-async def test_unknown_sleep_not_awake(hass, setup_entry, mock_api):
+async def test_unknown_sleep_not_awake(hass, setup_entry, mock_api, sleep):
     coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
-    mock_api.get_properties.return_value = properties(sleep_state=0)
-    await coordinator._async_update_data()
-    assert coordinator.sock.properties["sleep_state"] == 0
-    sensor = OwletAwakeSensor(coordinator)
-    if sensor.is_on is True:
-        raise UnknownSleepDefect("Unknown sleep code 0 is interpreted as awake")
-    assert sensor.is_on is None
+    mock_api.get_properties.return_value = properties(sleep_state=sleep)
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(entity_id(hass, "sleep_state")).state == "unknown"
+    enum_entity_id = er.async_get(hass).async_get_entity_id(
+        "sensor", DOMAIN, f"{SERIAL}-sleep_state"
+    )
+    assert hass.states.get(enum_entity_id).state == "unknown"
+
+
+@pytest.mark.parametrize("sleep", ["8", True, 8.0, None, [], {}])
+async def test_malformed_sleep_state_is_unknown(hass, setup_entry, sleep):
+    coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
+    coordinator.sock.properties["sleep_state"] = sleep
+    assert OwletAwakeSensor(coordinator).is_on is None
+    assert OwletSleepSensor(coordinator).native_value == "unknown"
+
+
+async def test_missing_sleep_state_is_unknown(hass, setup_entry):
+    coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
+    coordinator.sock.properties.pop("sleep_state")
+    assert OwletAwakeSensor(coordinator).is_on is None
+    assert OwletSleepSensor(coordinator).native_value == "unknown"
+
+
+async def test_sleep_state_recovers_without_changing_identity(
+    hass, setup_entry, mock_api
+):
+    coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
+    registry = er.async_get(hass)
+    awake_id = entity_id(hass, "sleep_state")
+    enum_id = registry.async_get_entity_id("sensor", DOMAIN, f"{SERIAL}-sleep_state")
+    awake_unique_id = registry.async_get(awake_id).unique_id
+    enum_unique_id = registry.async_get(enum_id).unique_id
+
+    mock_api.get_properties.return_value = properties(sleep_state=99)
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(awake_id).state == "unknown"
+    assert hass.states.get(enum_id).state == "unknown"
+
+    mock_api.get_properties.return_value = properties(sleep_state=1)
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(awake_id).state == "on"
+    assert hass.states.get(enum_id).state == "awake"
+    assert entity_id(hass, "sleep_state") == awake_id
+    assert registry.async_get(awake_id).unique_id == awake_unique_id
+    assert registry.async_get(enum_id).unique_id == enum_unique_id
