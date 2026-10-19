@@ -74,15 +74,18 @@ class OwletBaseSwitch(OwletBaseEntity, SwitchEntity):
     @property
     def available(self) -> bool:
         """Return if entity is available."""
-        return super().available and (
-            not self.sock.properties["charging"]
-            or self.entity_description.available_during_charging
+        charging = _charging_state(self.sock.properties.get("charging"))
+        value = self.sock.properties.get(self.entity_description.key)
+        return (
+            super().available
+            and (self.entity_description.available_during_charging or charging is False)
+            and _binary_state(value) is not None
         )
 
     @property
-    def is_on(self) -> bool:
+    def is_on(self) -> bool | None:
         """Return if switch is on or off."""
-        return self.sock.properties[self.entity_description.key]
+        return _binary_state(self.sock.properties.get(self.entity_description.key))
 
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn on the switch."""
@@ -91,3 +94,17 @@ class OwletBaseSwitch(OwletBaseEntity, SwitchEntity):
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn off the switch."""
         await self.entity_description.turn_off_fn(self.sock)(False)
+
+
+def _binary_state(value: object) -> bool | None:
+    """Return a known boolean-like value, preserving unknown and malformed data."""
+    if type(value) is bool:
+        return value
+    if type(value) is int and value in (0, 1):
+        return bool(value)
+    return None
+
+
+def _charging_state(value: object) -> bool | None:
+    """Return a known charging state, preserving unknown and malformed values."""
+    return _binary_state(value)

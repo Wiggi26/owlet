@@ -150,16 +150,19 @@ class OwletSensor(OwletBaseEntity, SensorEntity):
     @property
     def available(self) -> bool:
         """Return if entity is available."""
+        charging = _charging_state(self.sock.properties.get("charging"))
         return super().available and (
-            not self.sock.properties["charging"]
-            or self.entity_description.available_during_charging
+            self.entity_description.available_during_charging or charging is False
         )
 
     @property
     def native_value(self) -> StateType:
         """Return sensor value."""
 
-        return self.sock.properties[self.entity_description.key]
+        value = self.sock.properties.get(self.entity_description.key)
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return None
+        return value
 
 
 class OwletSleepSensor(OwletSensor):
@@ -211,14 +214,21 @@ class OwletOxygenAverageSensor(OwletSensor):
     @property
     def available(self) -> bool:
         """Return if entity is available."""
+        value = self.sock.properties.get("oxygen_10_av")
+        charging = _charging_state(self.sock.properties.get("charging"))
         return (
             super().available
-            and (
-                not self.sock.properties["charging"]
-                or self.entity_description.available_during_charging
-            )
-            and (
-                self.sock.properties["oxygen_10_av"] >= 0
-                and self.sock.properties["oxygen_10_av"] <= 100
-            )
+            and (self.entity_description.available_during_charging or charging is False)
+            and isinstance(value, (int, float))
+            and not isinstance(value, bool)
+            and 0 <= value <= 100
         )
+
+
+def _charging_state(value: object) -> bool | None:
+    """Return a known charging state, preserving unknown and malformed values."""
+    if type(value) is bool:
+        return value
+    if type(value) is int and value in (0, 1):
+        return bool(value)
+    return None

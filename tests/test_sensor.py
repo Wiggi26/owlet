@@ -9,7 +9,7 @@ from homeassistant.helpers import entity_registry as er
 from custom_components.owlet.const import DOMAIN
 from custom_components.owlet.sensor import SENSORS, OwletSensor
 
-from .fixture_data import SERIAL, properties
+from .fixture_data import SERIAL, device, properties
 from .regressions import InvalidOxygenDefect, StaleMeasurementDefect
 
 
@@ -126,11 +126,6 @@ async def test_identical_values_with_new_source_time(
     assert coordinator.sock.properties["last_updated"] == "2026/10/18 12:00:05"
 
 
-@pytest.mark.xfail(
-    strict=True,
-    raises=KeyError,
-    reason="AUDIT: disappearing optional properties break getters; roadmap PR 3",
-)
 async def test_missing_measurement_is_unknown(hass, setup_entry, mock_api):
     coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
     payload = properties()
@@ -138,13 +133,57 @@ async def test_missing_measurement_is_unknown(hass, setup_entry, mock_api):
     del vitals["hr"]
     payload["response"]["REAL_TIME_VITALS"]["value"] = json.dumps(vitals)
     mock_api.get_properties.return_value = payload
-    await coordinator._async_update_data()
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(sensor_id(hass, "heart_rate")).state == "unknown"
+
+
+@pytest.mark.parametrize("bad_value", [None, "bad", [], {}])
+async def test_malformed_optional_measurement_is_unknown(hass, setup_entry, bad_value):
+    coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
+    coordinator.sock.properties["heart_rate"] = bad_value
     entity = OwletSensor(
         coordinator,
         next(description for description in SENSORS if description.key == "heart_rate"),
     )
-    try:
-        assert entity.native_value is None
-    except KeyError as err:
-        assert err.args == ("heart_rate",)
-        raise
+    assert entity.native_value is None
+
+
+async def test_missing_property_isolated_to_sock_and_recovers(
+    hass, config_entry, mock_api
+):
+    second = "SYNTHETIC-SOCK-002"
+    mock_api.get_devices.return_value = {"response": [device(), device(second, 2)]}
+    assert await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+    registry = er.async_get(hass)
+    ids = {
+        serial: registry.async_get_entity_id("sensor", DOMAIN, f"{serial}-heart_rate")
+        for serial in (SERIAL, second)
+    }
+
+    async def readings(_api, serial):
+        payload = properties(heart_rate=100 if serial == SERIAL else 101)
+        if serial == SERIAL:
+            vitals = json.loads(payload["response"]["REAL_TIME_VITALS"]["value"])
+            vitals.pop("hr")
+            payload["response"]["REAL_TIME_VITALS"]["value"] = json.dumps(vitals)
+        return payload
+
+    mock_api.get_properties.side_effect = readings
+    coordinators = hass.data[DOMAIN][config_entry.entry_id]
+    await coordinators[SERIAL].async_refresh()
+    await coordinators[second].async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(ids[SERIAL]).state == "unknown"
+    assert hass.states.get(ids[second]).state == "101.0"
+
+    mock_api.get_properties.side_effect = None
+    mock_api.get_properties.return_value = properties(heart_rate=100)
+    await coordinators[SERIAL].async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(ids[SERIAL]).state == "100.0"
+    assert (
+        registry.async_get_entity_id("sensor", DOMAIN, f"{SERIAL}-heart_rate")
+        == ids[SERIAL]
+    )

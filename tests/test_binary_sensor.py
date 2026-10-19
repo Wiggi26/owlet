@@ -1,5 +1,7 @@
 """Binary sensor states and unsupported sleep-state regression."""
 
+import json
+
 import pytest
 from homeassistant.helpers import entity_registry as er
 
@@ -110,3 +112,40 @@ async def test_sleep_state_recovers_without_changing_identity(
     assert entity_id(hass, "sleep_state") == awake_id
     assert registry.async_get(awake_id).unique_id == awake_unique_id
     assert registry.async_get(enum_id).unique_id == enum_unique_id
+
+
+async def test_missing_charging_and_alert_are_unknown_and_recover(
+    hass, setup_entry, mock_api
+):
+    coordinator = hass.data[DOMAIN][setup_entry.entry_id][SERIAL]
+    payload = properties()
+    response = payload["response"]
+    response.pop("HIGH_HR_ALRT")
+    vitals = json.loads(response["REAL_TIME_VITALS"]["value"])
+    vitals.pop("chg")
+    vitals.pop("bso")
+    response["REAL_TIME_VITALS"]["value"] = json.dumps(vitals)
+    mock_api.get_properties.return_value = payload
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+
+    assert hass.states.get(entity_id(hass, "charging")).state == "unknown"
+    assert hass.states.get(entity_id(hass, "high_heart_rate_alert")).state == "unknown"
+    assert hass.states.get(entity_id(hass, "sleep_state")).state == "unavailable"
+    registry = er.async_get(hass)
+    switch_id = registry.async_get_entity_id(
+        "switch", DOMAIN, f"{SERIAL}-base_station_on"
+    )
+    heart_id = registry.async_get_entity_id("sensor", DOMAIN, f"{SERIAL}-heart_rate")
+    battery_id = registry.async_get_entity_id(
+        "sensor", DOMAIN, f"{SERIAL}-battery_percentage"
+    )
+    assert hass.states.get(switch_id).state == "unavailable"
+    assert hass.states.get(heart_id).state == "unavailable"
+    assert hass.states.get(battery_id).state == "50.0"
+
+    mock_api.get_properties.return_value = properties()
+    await coordinator.async_refresh()
+    await hass.async_block_till_done()
+    assert hass.states.get(entity_id(hass, "charging")).state == "off"
+    assert hass.states.get(entity_id(hass, "high_heart_rate_alert")).state == "off"
