@@ -59,7 +59,7 @@ pytest-socket blocks network sockets, allowing Unix sockets for the event loop. 
 
 Coverage includes configuration/duplicate-account flows, reauthentication, setup/unload/reload, token rotation, discovery errors, connection failures/timeouts, malformed responses, V2/V3 entity creation, two-sock isolation, state/availability changes, charging, switches and registry/config identity preservation. Naming assertions distinguish newly generated entity IDs on the two Core versions; reload checks preserve already registered IDs and user customisations.
 
-At current reconciled main `d178a33`, only the stale-source regression below remains as a strict expected failure for a known defect from [AUDIT.md](AUDIT.md). Its marker matches a checked exception or dedicated failure class; unrelated failures remain failures. No whole module is skipped.
+At current reconciled main `7e50be2`, only the stale-source regression below remains as a strict expected failure for a known defect from [AUDIT.md](AUDIT.md). Its marker matches a checked exception or dedicated failure class; unrelated failures remain failures. No whole module is skipped.
 
 | Regression | Finding / follow-up |
 | --- | --- |
@@ -68,6 +68,11 @@ At current reconciled main `d178a33`, only the stale-source regression below rem
 Merged options/default, saved-interval, sleep/numeric-validity, polling-reauth and normalized-getter fixes removed their matching markers. PR #39 also fixed integration-owned error/log privacy paths; it did not remove an expected-failure marker. Exact tested versions/results and remaining manual gates are in the [audit reconciliation](AUDIT.md#merged-evidence-reconciliation--19-october-2026).
 
 The merged [raw-parser contracts](RAW_PROPERTIES.md) characterize remaining defects; passing them does not establish field isolation. The [battery investigation](BATTERY.md) verifies synthetic input exposure without identifying a production cloud/firmware cause.
+
+The merged [Core-log contracts](LOG_PRIVACY.md) characterize entry-title exposure
+without changing titles or repairing it. PR #43's exact final-head results are in
+the audit reconciliation; this documentation update adds no runtime test result
+or manual acceptance.
 
 The stale-data regression uses an obviously historical timestamp to expose the missing guard. It does not prescribe a universal freshness cutoff. Passing tests and expected failures are reported separately; neither metadata validation nor coverage certifies live cloud/device compatibility.
 
