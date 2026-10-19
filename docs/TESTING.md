@@ -59,19 +59,19 @@ pytest-socket blocks network sockets, allowing Unix sockets for the event loop. 
 
 Coverage includes configuration/duplicate-account flows, reauthentication, setup/unload/reload, token rotation, discovery errors, connection failures/timeouts, malformed responses, V2/V3 entity creation, two-sock isolation, state/availability changes, charging, switches and registry/config identity preservation. Naming assertions distinguish newly generated entity IDs on the two Core versions; reload checks preserve already registered IDs and user customisations.
 
-At reconciled main `85173c1`, the following three tests execute and reproduce specific pre-existing defects from [AUDIT.md](AUDIT.md). Their strict expected-failure markers match a checked exception or a dedicated failure class; unrelated failures remain failures. Fixing one unexpectedly passes CI and requires removing its marker. No whole module is skipped.
+At current reconciled main `d178a33`, only the stale-source regression below remains as a strict expected failure for a known defect from [AUDIT.md](AUDIT.md). Its marker matches a checked exception or dedicated failure class; unrelated failures remain failures. No whole module is skipped.
 
 | Regression | Finding / follow-up |
 | --- | --- |
-| `test_saved_interval_applies` | Saved options leave active polling unchanged; roadmap PR 2 |
-| `test_old_source_measurement_unavailable` | Years-old source readings remain available; roadmap PR 3 |
-| `test_oxygen_sentinel_unavailable` | Instantaneous oxygen 255 remains available; roadmap PR 3 |
+| `test_old_source_measurement_unavailable` | Years-old source readings remain available; OWL-011 / [#11](https://github.com/Wiggi26/owlet/issues/11) |
 
-Merged options/default, sleep, polling-reauth and normalized-getter fixes removed only their matching markers. Their exact tested versions/results and remaining manual gates are in the [audit reconciliation](AUDIT.md#merged-evidence-reconciliation--19-october-2026).
+Merged options/default, saved-interval, sleep/numeric-validity, polling-reauth and normalized-getter fixes removed their matching markers. PR #39 also fixed integration-owned error/log privacy paths; it did not remove an expected-failure marker. Exact tested versions/results and remaining manual gates are in the [audit reconciliation](AUDIT.md#merged-evidence-reconciliation--19-october-2026).
+
+The merged [raw-parser contracts](RAW_PROPERTIES.md) characterize remaining defects; passing them does not establish field isolation. The [battery investigation](BATTERY.md) verifies synthetic input exposure without identifying a production cloud/firmware cause.
 
 The stale-data regression uses an obviously historical timestamp to expose the missing guard. It does not prescribe a universal freshness cutoff. Passing tests and expected failures are reported separately; neither metadata validation nor coverage certifies live cloud/device compatibility.
 
-Flow tests also record the current generic `unknown` response to connection/timeouts and missing reauth feedback. Actionable error classification and translations remain roadmap PR 2 work.
+Flow tests also record the current generic `unknown` response to connection/timeouts and missing reauth feedback. Actionable error classification and translations remain open roadmap work.
 
 ## Adding regressions and remaining gaps
 
