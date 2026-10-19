@@ -10,13 +10,9 @@ The current setup task authorises the reusable issue-sprint skill, project-scope
 
 ## Reusable issue batches
 
-- Use [owlet-issue-sprint](.agents/skills/owlet-issue-sprint/SKILL.md) and [the desktop runbook](docs/ISSUE_SPRINT.md) for issue batches, dry-run selection and merged-evidence reconciliation. A bare skill invocation defaults to a dry run; stop after one batch.
-- One coordinator retrieves the complete current backlog, audit, roadmap, dependencies and existing PRs/branches, then exclusively claims and assigns up to three independent issues. Workers never independently select or claim issues. Honour existing work and blocked prerequisites; fewer assignments are preferable to overlapping scopes.
-- Native subagents are authorised when useful for these workflows. Limit the entire batch to three active subagents, including investigators/reviewers; no nested fan-out. Prefer GPT-6 Luna for focused low-complexity work and GPT-6.1 Sol for authentication, async/cloud/state work and high-risk review. Do not route complex work to Luna solely to reduce usage.
-- Use a separate top-level worktree and `codex/issue-<number>-<scope>` branch per independent issue PR. Pass absolute worktree paths to workers; subagent threads share files and do not automatically create Git isolation. Delegate only non-overlapping edits in a shared worktree, with serial coordinator-owned Git operations.
-- Only the coordinator updates issue state and creates PRs. Reuse existing labels; preserve human labels. Use `audit`, one `agent:ready`/`agent:in-progress`/`agent:blocked`/`agent:needs-review` state, and the additional `agent:needs-manual-test` flag where required. Readiness is a triage decision, not a claim or resolution.
-- Keep parallel implementation branches out of `docs/AUDIT.md` and `docs/ROADMAP.md`. Record pending evidence in the issue/PR and reconcile shared tracking in a separate documentation change after merge. Keep grouped issues open until every finding and required verification is complete; avoid automatic closing keywords in implementation PRs.
-- Report attempted issues, PR-ready versus merged/verified work, PR URLs, exact-head CI, blockers, manual verification and the recommended next batch. Never automatically merge, deploy to Home Assistant or publish a release.
+- Follow [owlet-issue-sprint](.agents/skills/owlet-issue-sprint/SKILL.md) and [the runbook](docs/ISSUE_SPRINT.md). A bare invocation is a dry run; implementation needs an explicit instruction. Stop after one batch.
+- Native subagents are authorised when useful: at most three active across the batch, without nested fan-out. Default to GPT-6 Luna with high reasoning for focused work; use GPT-6.1 Sol for auth/async/cloud/state work and high-risk review. The coordinator alone claims/assigns issues and manages GitHub writes. Use separate top-level worktrees per independent issue PR; shared-worktree edits must not overlap.
+- Preserve existing labels and evidence gates. Keep audit/roadmap edits out of parallel implementation branches; reconcile after merge in one documentation change. Report attempted scopes, PR-ready versus merged/verified work, PRs/CI, blockers, manual checks and the next batch. Never automatically merge, deploy or publish.
 
 ## Authoritative GitHub repository
 
