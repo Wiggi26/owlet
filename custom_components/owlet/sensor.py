@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -150,6 +151,10 @@ class OwletSensor(OwletBaseEntity, SensorEntity):
     @property
     def available(self) -> bool:
         """Return if entity is available."""
+        if self.entity_description.key == "oxygen_saturation":
+            value = self.native_value
+            if value is None or not 0 <= value <= 100:
+                return False
         charging = _charging_state(self.sock.properties.get("charging"))
         return super().available and (
             self.entity_description.available_during_charging or charging is False
@@ -161,6 +166,8 @@ class OwletSensor(OwletBaseEntity, SensorEntity):
 
         value = self.sock.properties.get(self.entity_description.key)
         if isinstance(value, bool) or not isinstance(value, (int, float)):
+            return None
+        if isinstance(value, float) and not isfinite(value):
             return None
         return value
 
