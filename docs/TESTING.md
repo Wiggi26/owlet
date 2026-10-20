@@ -59,7 +59,7 @@ pytest-socket blocks network sockets, allowing Unix sockets for the event loop. 
 
 Coverage includes configuration/duplicate-account flows, reauthentication, setup/unload/reload, token rotation, discovery errors, connection failures/timeouts, malformed responses, V2/V3 entity creation, two-sock isolation, state/availability changes, charging, switches and registry/config identity preservation. Naming assertions distinguish newly generated entity IDs on the two Core versions; reload checks preserve already registered IDs and user customisations.
 
-At current reconciled main `7e50be2`, only the stale-source regression below remains as a strict expected failure for a known defect from [AUDIT.md](AUDIT.md). Its marker matches a checked exception or dedicated failure class; unrelated failures remain failures. No whole module is skipped.
+At current reconciled main `0dc08a8`, only the stale-source regression below remains as a strict expected failure for a known defect from [AUDIT.md](AUDIT.md). Its marker matches a checked exception or dedicated failure class; unrelated failures remain failures. No whole module is skipped.
 
 | Regression | Finding / follow-up |
 | --- | --- |
@@ -75,6 +75,15 @@ the audit reconciliation; this documentation update adds no runtime test result
 or manual acceptance.
 
 The stale-data regression uses an obviously historical timestamp to expose the missing guard. It does not prescribe a universal freshness cutoff. Passing tests and expected failures are reported separately; neither metadata validation nor coverage certifies live cloud/device compatibility.
+
+Merged PR #45's [final-head run](https://github.com/Wiggi26/owlet/actions/runs/39379148105)
+at `9583139` reports **374 passed, one existing strict stale-source xfail,
+97.45% combined coverage** on each exact profile above. Quality/workflow security,
+current-profile dependency auditing and hassfest pass; required HACS brand
+validation fails, including its isolated rerun. The missing local icon and failed
+central-brand fallback require separate review. The passing runtime jobs do not
+satisfy the complete CI gate or #9's remaining parser/manual criteria. See the
+[20 October reconciliation](AUDIT.md#merged-evidence-reconciliation--20-october-2026).
 
 Flow tests also record the current generic `unknown` response to connection/timeouts and missing reauth feedback. Actionable error classification and translations remain open roadmap work.
 

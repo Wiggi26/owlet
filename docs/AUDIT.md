@@ -6,7 +6,7 @@ Original audit and re-triage date: **18 October 2026**. The register below is th
 
 Reviewed fork `main` at [`197bf4e`](https://github.com/Wiggi26/owlet/commit/197bf4e2b316d5f8b7791b179371b0c887153f4c), after merged [packaging PR #1][packaging-pr] and [CI PR #2][ci-pr]. The fork issue listing was checked in all states, including pagination, before creating this backlog; it contained only those two PRs. Upstream's 31 issue/PR records were rechecked, with relevant discussion on #2, #9, #27, #29, #30 and #31. Upstream is reference-only; every new issue is in the fork.
 
-**41 findings: 29 Open (13 High, 13 Medium, 3 Low), 10 Resolved, 2 Accepted Risk. No Critical finding is established.** The 29 open findings are grouped into [21 open fork issues](https://github.com/Wiggi26/owlet/issues?q=is%3Aissue+is%3Aopen). Reconciled on **19 October 2026** against fork `main` at `7e50be2`. Open includes merged fixes awaiting mandatory manual acceptance or remaining scope; OWL-017 and OWL-022 meet their complete closure gates. Dependencies, likely root cause, solution, acceptance criteria, automated/manual tests and Small/Medium/Large complexity are recorded in each issue. [ROADMAP.md](ROADMAP.md) sequences small PRs; [TESTING.md](TESTING.md) describes the existing harness.
+**41 findings: 29 Open (13 High, 13 Medium, 3 Low), 1 Blocked (Medium), 10 Resolved, 1 Accepted Risk. No Critical finding is established.** The 30 unresolved findings are grouped into [22 open fork issues](https://github.com/Wiggi26/owlet/issues?q=is%3Aissue+is%3Aopen). Reconciled on **20 October 2026** against fork `main` at `0dc08a8`. Open includes merged fixes awaiting mandatory manual acceptance or remaining scope; OWL-017 and OWL-022 meet their complete closure gates. OWL-038's former fallback decision is superseded by a failed required HACS check. Dependencies, likely root cause, solution, acceptance criteria, automated/manual tests and Small/Medium/Large complexity are recorded in each issue. [ROADMAP.md](ROADMAP.md) sequences small PRs; [TESTING.md](TESTING.md) describes the existing harness.
 
 Severity describes impact; priority describes order. **Critical** requires established severe compromise, destructive failure or similarly urgent impact; none is evidenced here. **High / P1** covers setup/recovery failure, misleading measurements or material privacy/availability risk. **Medium / P2** covers bounded reliability, metadata, maintenance and privacy improvements. **Low / P3** covers optional enhancements/copy. OWL-026 is Medium but P1 **before release**. Validation gaps receive impact severity without being called observed runtime defects.
 
@@ -31,7 +31,7 @@ Related PR records merged work, including partial fixes; it does not alone mean 
 | <a id="owl-011"></a>OWL-011 | Successful polls accept stale or ambiguous source measurements (Confirmed defect) | High / P1 | Open | [#11](https://github.com/Wiggi26/owlet/issues/11) | — | `test_old_source_measurement_unavailable` strict xfail; timezone information is lost by library formatting. | Old readings can look current; cloud timestamp advances cannot prove a new device sample. |
 | <a id="owl-012"></a>OWL-012 | Numeric measurements lack a complete validity policy (Confirmed defect) | High / P1 | Open | [#10](https://github.com/Wiggi26/owlet/issues/10) | [PR #38](https://github.com/Wiggi26/owlet/pull/38) | Normalized numeric validity handling merged; matching normalized-value regression passes on both profiles. | Raw parser coercion/failure isolation remains under #9; synthetic UI acceptance remains. No complete raw-payload validity policy is established. |
 | <a id="owl-013"></a>OWL-013 | Unknown sleep becomes awake or raises on a new code (Confirmed defect) | High / P1 | Open | [#10](https://github.com/Wiggi26/owlet/issues/10) | [PR #29](https://github.com/Wiggi26/owlet/pull/29) | Known sleep meanings preserved; unknown/new normalized codes remain unknown; matching regression passes with its xfail removed. | Synthetic UI acceptance and grouped OWL-012 raw-value work remain open. |
-| <a id="owl-014"></a>OWL-014 | Disappearing properties can raise from entity getters (Confirmed defect) | High / P1 | Open | [#9](https://github.com/Wiggi26/owlet/issues/9) | [PR #34](https://github.com/Wiggi26/owlet/pull/34), [PR #41](https://github.com/Wiggi26/owlet/pull/41) | Normalized getters fixed; raw V2/V3 failure/coercion contracts and two-sock recovery/binding evidence merged. | Complete raw-field isolation remains blocked on a reviewed library normalization fix or supported hook; synthetic UI acceptance remains. Passing contracts do not repair the defect. |
+| <a id="owl-014"></a>OWL-014 | Disappearing properties can raise from entity getters (Confirmed defect) | High / P1 | Open | [#9](https://github.com/Wiggi26/owlet/issues/9) | [PR #34](https://github.com/Wiggi26/owlet/pull/34), [PR #41](https://github.com/Wiggi26/owlet/pull/41), [PR #45](https://github.com/Wiggi26/owlet/pull/45) | Normalized getters and post-success raw-flag validation merged; V2/V3 recovery and two-sock bindings tested. See the 20 October reconciliation below. | Parser-aborting fields still need a reviewed library fix/hook; mandatory synthetic UI acceptance and failed HACS brand validation remain. Premature issue closure was reversed; no dependent gate is cleared. |
 | <a id="owl-015"></a>OWL-015 | Alert availability during charging lacks freshness/reset evidence (Confirmed policy gap) | Medium / P2 | Open | [#11](https://github.com/Wiggi26/owlet/issues/11) | — | Alert descriptions remain available while charging; upstream retained-flag discussion is historical evidence, not a verified current alarm contract. | Retained flags may be read as current official monitoring. |
 | <a id="owl-016"></a>OWL-016 | Discovery and optional capabilities are static after setup (Enhancement gap) | Medium / P2 | Open | [#14](https://github.com/Wiggi26/owlet/issues/14) | — | Discovery and platform capability filters execute at setup only; normal initial two-sock creation already passes. | New/returning devices or fields may require reload; careless reconciliation risks duplicates. |
 | <a id="owl-017"></a>OWL-017 | Full pinned-library contracts and upgrade compatibility need review (Technical debt) | Medium / P2 | Resolved | [#7](https://github.com/Wiggi26/owlet/issues/7) | [PR #30](https://github.com/Wiggi26/owlet/pull/30) | Actual HTTP/session contracts, metadata, imports, hashes and privacy reviewed; exact 2025.4.1 pin retained; #7 closed. | Token persistence, HTTP/backoff, command semantics and live compatibility remain #8/#12/#15/#21; successor pins need separate review. |
@@ -55,7 +55,7 @@ Related PR records merged work, including partial fixes; it does not alone mean 
 | <a id="owl-035"></a>OWL-035 | Fixture contents have undocumented synthetic provenance (Privacy concern) | High / P1 | Resolved | — | [PR #2][ci-pr] | All six JSON filenames retained with wholly synthetic contents and provenance documentation; copy-isolated helpers. | This resolves the current tree, not a history-wide leak certification; no active leak established. |
 | <a id="owl-036"></a>OWL-036 | CI uses dated floating actions and a daily schedule (Workflow/security debt) | Medium / P1 | Resolved | — | [PR #2][ci-pr] | SHA-pinned actions, hosted Ubuntu/main push+PR only, read-only token, concurrency/timeouts, Ruff/pytest/hassfest/HACS/zizmor/current pip-audit. | Baseline advisory scope is OWL-030; upstream container wrappers and future revisions still need review. |
 | <a id="owl-037"></a>OWL-037 | Historical V2/multiple-sock/oxygen-average/state-class/interval issues (Historical resolved defects) | Medium / P2 | Resolved | — | Upstream fixes; [tests #2][ci-pr] | Current source retains upstream fixes; CI covers V2, two socks, average sentinel bounds, charging and registry identities; schema minimum/default are five seconds. | Retain regressions; this does not resolve fresh/instantaneous values or future firmware. |
-| <a id="owl-038"></a>OWL-038 | No local brand icon (Metadata warning) | Low / P3 | Accepted Risk | — | [PR #1][packaging-pr] | HACS passes using the existing central owlet brands assets, with an explicit fallback warning. | Existing source-layout decision accepts the fallback; revisit only if HACS requires local assets. |
+| <a id="owl-038"></a>OWL-038 | Missing local brand icon blocks HACS validation (Confirmed metadata failure) | Medium / P1 | Blocked | [#46](https://github.com/Wiggi26/owlet/issues/46) | [PR #1][packaging-pr], [PR #45](https://github.com/Wiggi26/owlet/pull/45) | Required HACS brand check fails twice on #45's final head; the earlier central-brand fallback warning no longer establishes a passing gate. | Review local asset provenance/attribution, add a compliant icon and verify packaging plus final-head HACS; no runtime incompatibility is established by this metadata failure. |
 | <a id="owl-039"></a>OWL-039 | Camera/prediction/recovery/alarm-control feature requests (Deferred enhancements/non-goals) | Low / P3 | Accepted Risk | — | — | Audit scope and existing maintenance rules explicitly defer these features; no present maintenance defect established. | Existing scope decision only; any later support/safety change requires separate authorisation. No alarm-silencing work. |
 | <a id="owl-040"></a>OWL-040 | Suspected French encoding artifacts (Unconfirmed earlier suspicion) | Low / P3 | Resolved | — | — | Current file decodes/parses as UTF-8 JSON, displays French accents, and has zero U+FFFD/common mojibake markers; earlier encoding claim corrected. | Not a complete linguistic review; copy/key issues remain OWL-006 / OWL-027. No speculative encoding fix. |
 | <a id="owl-041"></a>OWL-041 | Partial setup/cancellation/unload failure paths lack coverage (Validation gap) | Medium / P2 | Open | [#13](https://github.com/Wiggi26/owlet/issues/13) | — | Normal unload/reload passes; failed concurrent setup/cancellation/partial forwarding not covered. | No task/session leak established; normal reload/unload is already covered. |
@@ -113,6 +113,40 @@ Planning validation passed: all 41 unique finding IDs/statuses, 31 open-to-issue
 
 [packaging-pr]: https://github.com/Wiggi26/owlet/pull/1
 [ci-pr]: https://github.com/Wiggi26/owlet/pull/2
+
+## Merged evidence reconciliation — 20 October 2026
+
+Reviewed fork main `0dc08a8b76261aade768e8aa77bc1fb0a6ce947a`, the merge
+of [PR #45](https://github.com/Wiggi26/owlet/pull/45). This partial OWL-014 fix
+validates raw alert/status, charging and base-station flags after successful
+library normalization. It preserves configuration and registry identities,
+the dependency pin and command methods. Parser-aborting numeric/charging fields
+still need a reviewed library normalization fix or supported hook; mandatory
+synthetic missing/recovery UI and binding acceptance remains unperformed.
+
+[Final-head run 39379148105](https://github.com/Wiggi26/owlet/actions/runs/39379148105)
+at `95831390bc2a7f52b099f9a6c04b243678027171` reports **374 passed,
+1 existing strict stale-source xfail and 97.45% combined coverage** on each
+Core/Python pair: **2025.12.4 / 3.13.2** and **2026.10.2 / 3.14.2**.
+Ruff/workflow security, current-profile dependency audit and hassfest pass.
+HACS fails its required brand check, including the isolated rerun: the local
+icon is absent and the central-brand fallback was not found. Brand inputs were
+unchanged by #45; this requires review of OWL-038's earlier fallback decision.
+The failed metadata gate is separate from the passing runtime evidence.
+OWL-038 is reclassified from Low/P3 Accepted Risk to Medium/P1 Blocked in
+[#46](https://github.com/Wiggi26/owlet/issues/46). Current
+[HACS requirements](https://www.hacs.xyz/docs/publish/integration/#brand-assets)
+describe a local brand directory with an icon. Review the asset source and
+attribution before adding it, then verify exact package extraction and all
+required final-head checks. No asset is added by this reconciliation.
+
+Issue #9 was closed on merge despite these outstanding criteria. It was
+reopened at `agent:blocked`; this merge resolves no complete finding and clears
+no dependent gate. Issues #3/#4/#16 still await their recorded owner-run
+synthetic acceptance; no new acceptance evidence was provided. This
+documentation reconciliation adds no runtime or manual test result. Complete
+all-state discovery and review found no currently eligible implementation scope;
+the recorded prerequisites and evidence gaps remain in force.
 
 ## Historical audit and follow-up snapshots
 
