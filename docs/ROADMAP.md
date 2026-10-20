@@ -1,6 +1,6 @@
 # Owlet remediation roadmap
 
-Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled **20 October 2026** at fork `main` `0dc08a8`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
+Originally reviewed **18 October 2026** at `197bf4e`; merged evidence reconciled **20 October 2026** at fork `main` `989cdf4`. This is a proposed implementation sequence for review, not authorisation to implement fixes. The [audit register](AUDIT.md#remediation-register) is the finding/status source; linked fork issues contain detailed evidence, root cause, acceptance criteria, tests, manual checks, dependencies and complexity. All issue/PR work belongs in `Wiggi26/owlet`; upstream is reference-only.
 
 ## Baseline and decision rules
 
@@ -25,9 +25,10 @@ The original roadmap's “PR 1/2/3” were conceptual stages, not GitHub PR numb
 - [#42](https://github.com/Wiggi26/owlet/pull/42): battery investigation complete; #18 closed. Synthetic transitions show faithful input exposure without establishing a production cloud/firmware cause. No filtering is justified.
 - [#43](https://github.com/Wiggi26/owlet/pull/43): actual-Core logging contracts confirm default/custom entry-title exposure. [The remedy boundary](LOG_PRIVACY.md) leaves #6 blocked on a supported title-safe approach, switch-command privacy and synthetic log/report acceptance; no dependent gate is cleared.
 
-- [#45](https://github.com/Wiggi26/owlet/pull/45): post-success raw flag validation merged at `0dc08a8`; #9 was reopened because parser-aborting fields and mandatory synthetic UI/binding acceptance remain. Both exact runtime profiles pass (374 passes, one strict stale-source xfail each), but required HACS brand validation fails. OWL-038 is now tracked by [#46](https://github.com/Wiggi26/owlet/issues/46), blocked on a reviewed local asset and metadata/package verification; this partial merge clears no dependency.
+- [#45](https://github.com/Wiggi26/owlet/pull/45): post-success raw flag validation merged at `0dc08a8`; #9 was reopened because parser-aborting fields and mandatory synthetic UI/binding acceptance remain. Its failed HACS brand gate was subsequently repaired in #48; this partial runtime fix clears no dependency.
+- [#48](https://github.com/Wiggi26/owlet/pull/48): reviewed local icon and packaged attribution merged at `989cdf4`; OWL-038 is Resolved and #46 closed. All six final-head and merged-main checks pass. Exact versions, package evidence and remaining limits are in the [brand-gate reconciliation](AUDIT.md#local-brand-gate-reconciliation--20-october-2026).
 
-Prioritise the required HACS brand-check failure and a reviewed library normalization path for #9. Complete owner-run
+Prioritise a reviewed library normalization path for #9. Complete owner-run
 synthetic acceptance for #3/#4/#16 before treating their gates as satisfied;
 #5/#8 retain #4's gate and #13 retains #3's. Serialize overlapping setup/flow
 scopes. #11 still needs #9 and #12 needs #8; unmerged work or issue closure
@@ -98,9 +99,8 @@ Each row is a separate PR or an investigation followed by a narrowly justified f
 | Typed runtime ownership | OWL-028; [#24](https://github.com/Wiggi26/owlet/issues/24) | Token/lifecycle stability; document the benefit, reuse freshness work and keep the coordinator/library architecture. |
 | Optional dashboard example | OWL-029; [#25](https://github.com/Wiggi26/owlet/issues/25) | Correct values/freshness/availability, reviewed switch semantics and diagnostics first. Synthetic-only mobile/tablet/theme/accessibility review; no mandatory new card/client. |
 
-The former central-brand fallback decision (OWL-038) is superseded by the
-required HACS failure tracked in #46; review an attributable local icon and
-verify packaging/CI before treating that gate as satisfied. Deferred
+The local-brand metadata gate (OWL-038 / #46) is resolved by merged #48;
+this clears no runtime or manual acceptance prerequisite. Deferred
 camera/prediction/recovery/alarm-control features retain their existing scope
 decision (OWL-039) and do not justify implementation work.
 
