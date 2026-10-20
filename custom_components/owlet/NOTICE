@@ -4,3 +4,13 @@ https://github.com/ryanbdclark/owlet
 Licensed under Apache-2.0; see LICENSE in this directory.
 Modified manifest.json: maintainer, repository URLs, and integration version.
 Python formatting and imports adjusted for CI; application behaviour unchanged.
+
+Brand icon:
+`brand/icon.png` is copied unchanged from `home-assistant/brands` at commit
+03dcc9c3436e48c295fe9ca3055ee5ddfda47cb3, file
+`custom_integrations/owlet/icon.png` (Git blob
+06da0a79b6a8670cff9d13139c2176cc775fa0c5), submitted by Ryan Clark in
+https://github.com/home-assistant/brands/pull/4349. The Owlet name and mark
+remain the property of their respective owners; the image is used only to
+identify this integration and does not imply endorsement. This notice does not
+claim the mark or image is licensed under Apache-2.0.

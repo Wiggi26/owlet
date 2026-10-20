@@ -2,7 +2,7 @@
 
 ## Installation and versioning
 
-Use HACS's [standard integration layout](https://www.hacs.xyz/docs/publish/integration/): `custom_components/owlet`, with `zip_release`, `filename`, and `content_in_root` omitted from `hacs.json`. HACS extracts this directory from the selected Git ref; no uploaded release ZIP or packaging workflow is required. The earlier central-brand fallback no longer passes the required HACS check: [OWL-038 / #46](https://github.com/Wiggi26/owlet/issues/46) tracks a reviewed local icon and package/metadata verification. See the [20 October evidence](AUDIT.md#merged-evidence-reconciliation--20-october-2026); source-directory packaging is retained.
+Use HACS's [standard integration layout](https://www.hacs.xyz/docs/publish/integration/): `custom_components/owlet`, with `zip_release`, `filename`, and `content_in_root` omitted from `hacs.json`. HACS extracts this directory from the selected Git ref; no uploaded release ZIP or packaging workflow is required. The package includes `brand/icon.png`, copied unchanged from [Home Assistant Brands PR #4349](https://github.com/home-assistant/brands/pull/4349). The installed `NOTICE` records its pinned source, attribution and identification-only trademark status; the integration's Apache-2.0 licence does not grant rights to the mark.
 
 The manifest reserves **2026.10.0**, currently unreleased. Continue calendar versions `YYYY.M.P`, starting `P` at 0 each month. A future GitHub Release tag must exactly match the manifest version and tested commit, without a leading `v`. Until releases exist, HACS tracks `main` by commit. Do not move published tags or reuse the mismatched upstream `2025.4.3` tag.
 
@@ -14,10 +14,7 @@ The unsupported HACS/Core minimum declarations were removed; a tested Core/Pytho
 
 ## Verification
 
-- [HACS](https://github.com/Wiggi26/owlet/actions/runs/39138090317/job/117706642129) and [hassfest](https://github.com/Wiggi26/owlet/actions/runs/39138090317/job/117706641903) passed at `c4de3fc`; final-head results are linked in the PR. No checks are ignored.
-- HACS's `download_content` and `download_repository_zip` methods at [revision cc187cf](https://github.com/hacs/integration/blob/cc187cf258940a2a7acb5404773625465d7bf5a8/custom_components/hacs/repositories/base.py) were exercised against a local Git source archive with stubbed transport. Branch fallback and simulated tag extraction produced all 15 expected files byte-for-byte, including three translations, LICENSE and NOTICE, with no repository tests/docs/fixtures installed. No tag was created or live HACS/HA instance used.
-- Dependency imports passed under Python 3.12.14 with aiohttp 3.14.5; downloaded source hashes matched PyPI. This does not establish a Home Assistant runtime support range.
-- JSON/YAML/Python parsing, local documentation paths, whitespace checks, and runtime-source preservation checks passed. Existing pytest collection fails in five modules; Ruff reports nine existing lint findings and 11 files needing formatting.
+The source-directory extraction check and HACS/hassfest passes at `c4de3fc` are historical evidence from 18 October 2026 ([PR #1](https://github.com/Wiggi26/owlet/pull/1)); they predate this local icon. For this asset, verify the PNG is 256×256 and its Git blob hash matches `06da0a79b6a8670cff9d13139c2176cc775fa0c5`, then inspect HACS extraction for `custom_components/owlet/brand/icon.png` and the existing installed files. Required current HACS and hassfest results are reported by the change's CI; this document adds no new test result.
 
 Validation now runs on pushes and PRs only in `.github/workflows/validate.yml`, using reviewed action references, read-only permissions, and timeouts. There was no release-build workflow to remove. Repository topics `hacs`, `home-assistant`, and `owlet` were added to satisfy HACS discovery metadata; the initial topics failure is resolved.
 
