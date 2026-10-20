@@ -24,6 +24,12 @@ class OwletBaseEntity(CoordinatorEntity[OwletCoordinator], Entity):
         self.coordinator = coordinator
         self.sock = coordinator.sock
 
+    def _property_value(self, key: str) -> object:
+        """Read a normalized value, withholding flags rejected in this poll."""
+        if key in self.coordinator.invalid_flags:
+            return None
+        return self.sock.properties.get(key)
+
     @property
     def device_info(self) -> DeviceInfo:
         """Return the device info of the device."""

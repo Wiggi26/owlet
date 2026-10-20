@@ -155,7 +155,7 @@ class OwletSensor(OwletBaseEntity, SensorEntity):
             value = self.native_value
             if value is None or not 0 <= value <= 100:
                 return False
-        charging = _charging_state(self.sock.properties.get("charging"))
+        charging = _charging_state(self._property_value("charging"))
         return super().available and (
             self.entity_description.available_during_charging or charging is False
         )
@@ -222,7 +222,7 @@ class OwletOxygenAverageSensor(OwletSensor):
     def available(self) -> bool:
         """Return if entity is available."""
         value = self.sock.properties.get("oxygen_10_av")
-        charging = _charging_state(self.sock.properties.get("charging"))
+        charging = _charging_state(self._property_value("charging"))
         return (
             super().available
             and (self.entity_description.available_during_charging or charging is False)
