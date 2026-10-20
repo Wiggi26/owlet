@@ -2,7 +2,7 @@
 
 ## Installation and versioning
 
-Use HACS's [standard integration layout](https://www.hacs.xyz/docs/publish/integration/): `custom_components/owlet`, with `zip_release`, `filename`, and `content_in_root` omitted from `hacs.json`. HACS extracts this directory from the selected Git ref; no uploaded release ZIP or packaging workflow is required. Existing central Owlet brand assets satisfy HACS validation, with a warning about the absent local icon.
+Use HACS's [standard integration layout](https://www.hacs.xyz/docs/publish/integration/): `custom_components/owlet`, with `zip_release`, `filename`, and `content_in_root` omitted from `hacs.json`. HACS extracts this directory from the selected Git ref; no uploaded release ZIP or packaging workflow is required. The earlier central-brand fallback no longer passes the required HACS check: [OWL-038 / #46](https://github.com/Wiggi26/owlet/issues/46) tracks a reviewed local icon and package/metadata verification. See the [20 October evidence](AUDIT.md#merged-evidence-reconciliation--20-october-2026); source-directory packaging is retained.
 
 The manifest reserves **2026.10.0**, currently unreleased. Continue calendar versions `YYYY.M.P`, starting `P` at 0 each month. A future GitHub Release tag must exactly match the manifest version and tested commit, without a leading `v`. Until releases exist, HACS tracks `main` by commit. Do not move published tags or reuse the mismatched upstream `2025.4.3` tag.
 
